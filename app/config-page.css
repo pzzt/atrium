@@ -279,6 +279,7 @@ body {
 }
 
 /* Forms */
+.general-form,
 .service-form,
 .feed-form {
     background: var(--bg-card);
@@ -320,6 +321,14 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     border-color: var(--accent);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    opacity: 0.7;
 }
 
 .form-group input::placeholder {
