@@ -17,6 +17,12 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy application files
 COPY app/ /usr/share/nginx/html/
 
+# Ensure all files have correct permissions for nginx
+RUN chmod 644 /usr/share/nginx/html/*.js && \
+    chmod 644 /usr/share/nginx/html/*.css && \
+    chmod 644 /usr/share/nginx/html/*.html && \
+    chmod 644 /usr/share/nginx/html/i18n/*.json
+
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
