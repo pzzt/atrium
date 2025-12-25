@@ -15,7 +15,7 @@
 - 📰 **RSS Feed Integration** - Latest news from your favorite sources
 - 🔍 **Instant Search** - Quick filter through your services
 - 📱 **Responsive Design** - Works perfectly on mobile and desktop
-- 💾 **Browser Persistence** - Configuration saved in localStorage
+- 💾 **Docker Volume Persistence** - Configuration stored in `/data/config.json`
 - 🐳 **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
 - ⚡ **Lightweight** - Optimized for Raspberry Pi 3 (~10-20MB RAM)
 
@@ -24,12 +24,12 @@
 ### Option 1: Pull from Docker Hub (Recommended)
 
 ```bash
-docker run -d --name atrium -p 8080:80 --restart unless-stopped pzzt/atrium:latest
+docker run -d --name atrium -p 8080:80 -v atrium-data:/data --restart unless-stopped pzzt/atrium:latest
 ```
 
 Access at: `http://your-raspberry-pi-ip:8080`
 
-> **Note**: If port 8080 is already in use, you can change the host port (e.g., `-p 80:80` for port 80)
+> **Note**: The `-v atrium-data:/data` flag ensures your configuration persists across container updates. If port 8080 is already in use, you can change the host port (e.g., `-p 80:80` for port 80)
 
 ### Option 2: Build from Source
 
@@ -42,7 +42,7 @@ cd atrium
 docker build -f docker/Dockerfile -t atrium:latest .
 
 # Run the container
-docker run -d --name atrium -p 8080:80 atrium:latest
+docker run -d --name atrium -p 8080:80 -v atrium-data:/data atrium:latest
 ```
 
 ### Using Docker Compose
@@ -75,7 +75,9 @@ The compose.yaml file uses port 8080 by default. You can edit the port mapping i
 - **Frontend**: Pure HTML/CSS/JavaScript (no frameworks)
 - **Web Server**: nginx (alpine-based)
 - **System Monitor**: Python 3 HTTP server reading `/proc` filesystem
-- **Storage**: Browser localStorage (client-side only)
+- **Config API**: Python REST API for configuration management
+- **Storage**: JSON file in Docker volume (`/data/config.json`)
+- **Language**: Browser localStorage (for language preference only)
 - **Deployment**: Docker container
 
 ### Tech Stack
@@ -187,7 +189,7 @@ docker restart atrium
 docker pull pzzt/atrium:latest
 docker stop atrium
 docker rm atrium
-docker run -d --name atrium -p 8080:80 --restart unless-stopped pzzt/atrium:latest
+docker run -d --name atrium -p 8080:80 -v atrium-data:/data --restart unless-stopped pzzt/atrium:latest
 ```
 
 ### Resource Usage (Recommended Limits)
@@ -238,22 +240,35 @@ docker run --rm -p 8080:80 atrium:latest
 
 ## 💾 Backup & Restore
 
-### Backup
+### Automatic Backup (Recommended)
 
+Your configuration is automatically stored in a Docker volume. To back it up:
+
+```bash
+# Copy config from container
+docker cp atrium:/data/config.json atrium-config-backup.json
+
+# Restore from backup
+docker cp atrium-config-backup.json atrium:/data/config.json
+docker restart atrium
+```
+
+### Manual Export/Import
+
+**Export:**
 1. Go to Configuration page (⚙️)
 2. Click "Export Configuration"
 3. Download the JSON file
 
-### Restore
-
-1. Edit `app/config.js`
-2. Add your services/feeds from the backup
-3. Rebuild and restart container
+**Import:**
+1. Go to Configuration page (⚙️)
+2. Click "Restore Defaults"
+3. Manually add your services from the backup (or use docker cp method above)
 
 ## 🔒 Security
 
-- **No database** - All configuration stored in browser localStorage
-- **No external calls** - RSS feeds fetched client-side
+- **No database** - All configuration stored in JSON file on Docker volume
+- **No external calls** - RSS feeds fetched client-side via public API
 - **No tracking** - No analytics or telemetry
 - **No authentication** - Deploy on trusted network only (or add reverse proxy auth)
 
@@ -262,6 +277,7 @@ docker run --rm -p 8080:80 atrium:latest
 - [x] Multi-language support (EN, IT, DE)
 - [x] System monitoring (CPU, RAM, Network)
 - [x] Custom application title
+- [x] Docker volume persistence
 - [ ] Optional authentication
 - [ ] Light/dark theme toggle
 - [ ] Pinned/favorite services
