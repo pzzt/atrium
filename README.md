@@ -19,7 +19,7 @@
 - 📱 **Responsive Design** - Works perfectly on mobile and desktop
 - 💾 **Docker Volume Persistence** - Configuration stored in `/data/config.json`
 - 🐳 **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
-- ⚡ **Lightweight** - Optimized for Raspberry Pi 3 (~10-20MB RAM)
+- ⚡ **Lightweight** - Optimized for Raspberry Pi 3
 
 ## 🚀 Quick Start
 
@@ -71,7 +71,7 @@ The compose.yaml file uses port 8080 by default. You can edit the port mapping i
 ### Tech Stack
 
 - **nginx**: Lightweight web server
-- **Python 3**: System stats API
+- **Python 3**: System stats and config API
 - **Vanilla JS**: No frameworks, pure JavaScript
 - **CSS3**: Custom properties, flexbox, grid
 - **i18n**: JSON-based translation system
@@ -92,13 +92,7 @@ All configuration is done through the web UI:
 
 ### Default Configuration
 
-Edit `app/config.js` to set defaults before building:
-
-```javascript
-const appTitle = "";
-const services = [];
-const newsFeeds = [];
-```
+Configuration is stored in `/data/config.json` on the Docker volume. When you first run Atrium, it starts with an empty configuration. Use the web UI to add your services and feeds.
 
 ## 📊 System Monitor
 
@@ -249,14 +243,12 @@ docker restart atrium
 3. Download the JSON file
 
 **Import:**
-1. Go to Configuration page (⚙️)
-2. Click "Restore Defaults"
-3. Manually add your services from the backup (or use docker cp method above)
+Use the docker cp method above to restore your backup. The web UI does not currently have an import feature.
 
 ## 🔒 Security
 
 - **No database** - All configuration stored in JSON file on Docker volume
-- **No external calls** - RSS feeds fetched client-side via public API
+- **No external calls** - RSS feeds fetched client-side (via rss2json API for conversion)
 - **No tracking** - No analytics or telemetry
 - **No authentication** - Deploy on trusted network only (or add reverse proxy auth)
 
