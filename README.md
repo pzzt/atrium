@@ -24,10 +24,12 @@
 ### Option 1: Pull from Docker Hub (Recommended)
 
 ```bash
-docker run -d --name atrium -p 80:80 --restart unless-stopped pzzt/atrium:latest
+docker run -d --name atrium -p 8080:80 --restart unless-stopped pzzt/atrium:latest
 ```
 
-Access at: `http://your-raspberry-pi-ip`
+Access at: `http://your-raspberry-pi-ip:8080`
+
+> **Note**: If port 8080 is already in use, you can change the host port (e.g., `-p 80:80` for port 80)
 
 ### Option 2: Build from Source
 
@@ -40,15 +42,17 @@ cd atrium
 docker build -f docker/Dockerfile -t atrium:latest .
 
 # Run the container
-docker run -d --name atrium -p 80:80 atrium:latest
+docker run -d --name atrium -p 8080:80 atrium:latest
 ```
 
 ### Using Docker Compose
 
 ```bash
 cd atrium
-docker-compose -f docker/docker-compose.yml up -d
+docker compose up -d
 ```
+
+The compose.yaml file uses port 8080 by default. You can edit the port mapping in compose.yaml if needed.
 
 ## 📸 Screenshots
 
@@ -183,7 +187,7 @@ docker restart atrium
 docker pull pzzt/atrium:latest
 docker stop atrium
 docker rm atrium
-docker run -d --name atrium -p 80:80 --restart unless-stopped pzzt/atrium:latest
+docker run -d --name atrium -p 8080:80 --restart unless-stopped pzzt/atrium:latest
 ```
 
 ### Resource Usage (Recommended Limits)
@@ -207,11 +211,11 @@ Already configured in `docker/docker-compose.yml`.
 # Check logs
 docker logs atrium
 
-# Verify port 80 is available
-sudo netstat -tlnp | grep :80
+# Verify port 8080 is available (or your chosen port)
+sudo netstat -tlnp | grep :8080
 
 # Run without detach for debugging
-docker run --rm -p 80:80 atrium:latest
+docker run --rm -p 8080:80 atrium:latest
 ```
 
 ### Can't Access from Other Devices
