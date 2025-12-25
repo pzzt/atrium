@@ -156,6 +156,11 @@ let appConfig = {
 
 function renderServices() {
     const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) return;
+
+    // Clear existing services
+    servicesGrid.innerHTML = '';
+
     const servicesList = appConfig.services;
 
     servicesList.forEach(service => {
