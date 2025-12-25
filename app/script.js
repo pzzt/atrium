@@ -171,7 +171,7 @@ function renderServices() {
             <div class="card-icon">${service.icon}</div>
             <h2 class="card-title">${service.name}</h2>
             <p class="card-description">${service.description}</p>
-            <div class="card-link">${t('config.open', {}, 'Open →')}</div>
+            <div class="card-link">${t('config.open')}</div>
         `;
         servicesGrid.appendChild(card);
     });
