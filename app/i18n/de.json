@@ -2,7 +2,7 @@
   "lang": "de",
   "strings": {
     "app.title": "Atrium",
-    "app.subtitle": "Proxy-Server über Tailscale",
+    "app.subtitle": "https://github.com/pzzt/atrium",
     "search.placeholder": "🔍 Dienste suchen...",
     "no.results": "Keine Dienste gefunden",
     "config.title": "Konfiguration",
