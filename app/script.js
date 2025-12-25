@@ -1,4 +1,63 @@
 // ============================================
+// i18n Initialization
+// ============================================
+
+// Initialize i18n system before anything else
+document.addEventListener('DOMContentLoaded', async () => {
+    await initI18N();
+
+    // Setup language selector
+    const langSelector = document.getElementById('languageSelector');
+    if (langSelector) {
+        langSelector.addEventListener('change', async (e) => {
+            await setLanguage(e.target.value);
+            // Reload components that need translation
+            updateAllTranslatableElements();
+        });
+    }
+});
+
+function updateAllTranslatableElements() {
+    // Update search placeholder
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.placeholder = t('search.placeholder');
+    }
+
+    // Update no results message
+    const noResults = document.getElementById('noResults');
+    if (noResults) {
+        const p = noResults.querySelector('p');
+        if (p) p.textContent = t('no.results');
+    }
+
+    // Update news title
+    const newsTitle = document.querySelector('.news-title');
+    if (newsTitle) {
+        newsTitle.textContent = t('news.title');
+    }
+
+    // Update system monitor labels
+    updateSystemMonitorLabels();
+}
+
+function updateSystemMonitorLabels() {
+    // Update static labels that won't be updated by the i18n auto-update
+    const cpuLabel = document.querySelector('.cpu-card .stat-label');
+    const memLabel = document.querySelector('.memory-card .stat-label');
+    const uptimeLabel = document.querySelector('.uptime-card .stat-label');
+    const netLabel = document.querySelector('#networkStats h3');
+    const footerText = document.querySelector('.footer p');
+
+    if (cpuLabel) cpuLabel.textContent = t('system.cpu');
+    if (memLabel) memLabel.textContent = t('system.memory');
+    if (uptimeLabel) uptimeLabel.textContent = t('system.uptime');
+    if (netLabel) netLabel.textContent = t('system.network');
+    if (footerText) footerText.textContent = t('app.subtitle');
+}
+
+
+// ============================================
 // Caricamento Configurazione
 // ============================================
 
@@ -36,14 +95,16 @@ function renderServices() {
             <div class="card-icon">${service.icon}</div>
             <h2 class="card-title">${service.name}</h2>
             <p class="card-description">${service.description}</p>
-            <div class="card-link">Apri →</div>
+            <div class="card-link">${t('config.open', {}, 'Open →')}</div>
         `;
         servicesGrid.appendChild(card);
     });
 }
 
 // Genera i servizi al caricamento
-renderServices();
+document.addEventListener('DOMContentLoaded', () => {
+    renderServices();
+});
 
 
 // ============================================
@@ -164,7 +225,7 @@ async function renderNews() {
 
     // Show loading state
     newsSection.style.display = 'block';
-    newsGrid.innerHTML = '<div class="news-loading">Caricamento notizie...</div>';
+    newsGrid.innerHTML = `<div class="news-loading">${t('news.loadingText')}</div>`;
 
     let allNews = [];
 
@@ -242,7 +303,7 @@ function updateCPUStats(cpu) {
         const cores = cpu.cores || 1;
 
         cpuValue.textContent = `${percent}%`;
-        cpuDetails.textContent = `${cores} core${cores > 1 ? 's' : ''}`;
+        cpuDetails.textContent = t('system.cores', { n: cores, s: cores > 1 ? 's' : '' });
         cpuBar.style.width = `${percent}%`;
 
         // Colore basato sull'utilizzo
@@ -255,7 +316,7 @@ function updateCPUStats(cpu) {
         }
     } else {
         cpuValue.textContent = 'N/A';
-        cpuDetails.textContent = 'API non disponibile';
+        cpuDetails.textContent = t('system.apiUnavailable');
         cpuBar.style.width = '0%';
     }
 }
@@ -284,7 +345,7 @@ function updateMemoryStats(memory) {
         }
     } else {
         memoryValue.textContent = 'N/A';
-        memoryDetails.textContent = 'API non disponibile';
+        memoryDetails.textContent = t('system.apiUnavailable');
         memoryBar.style.width = '0%';
     }
 }
@@ -300,7 +361,7 @@ function updateUptimeStats(stats) {
         loadValue.textContent = load.map(l => l.toFixed(2)).join(' / ');
     } else {
         uptimeValue.textContent = 'N/A';
-        loadValue.textContent = 'API non disponibile';
+        loadValue.textContent = t('system.apiUnavailable');
     }
 }
 
@@ -308,7 +369,7 @@ function updateNetworkStats(networks) {
     const networkList = document.getElementById('networkList');
 
     if (!networks || networks.length === 0) {
-        networkList.innerHTML = '<div class="network-error">Nessuna interfaccia di rete trovata</div>';
+        networkList.innerHTML = `<div class="network-error">${t('system.noNetwork')}</div>`;
         return;
     }
 

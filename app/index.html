@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,15 +8,22 @@
 </head>
 <body>
     <div class="container">
-        <!-- Bottone configurazione -->
-        <a href="config.html" class="config-button" title="Configurazione">⚙️</a>
+        <!-- Language selector & Config button -->
+        <div class="top-controls">
+            <select id="languageSelector" class="language-selector" title="Language">
+                <option value="en">🇺🇸 English</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="de">🇩🇪 Deutsch</option>
+            </select>
+            <a href="config.html" class="config-button" title="Configuration">⚙️</a>
+        </div>
 
         <!-- Header con orologio -->
         <header class="header">
-            <h1 class="title">Home Proxy</h1>
+            <h1 class="title" data-i18n="app.title">Proxy Homepage</h1>
             <div class="clock" id="clock">
                 <div class="time" id="time">--:--:--</div>
-                <div class="date" id="date">Caricamento...</div>
+                <div class="date" id="date">Loading...</div>
             </div>
         </header>
 
@@ -26,7 +33,8 @@
                 type="text"
                 id="search"
                 class="search-input"
-                placeholder="🔍 Cerca servizi..."
+                data-i18n-placeholder="search.placeholder"
+                placeholder="🔍 Search services..."
                 autocomplete="off"
             >
         </div>
@@ -36,25 +44,25 @@
 
         <!-- Nessun risultato ricerca -->
         <div class="no-results" id="noResults" style="display: none;">
-            <p>Nessun servizio trovato</p>
+            <p data-i18n="no.results">No services found</p>
         </div>
 
         <!-- Sezione News (generata dinamicamente) -->
         <section class="news-section" id="newsSection" style="display: none;">
-            <h2 class="news-title">📰 Ultime Notizie</h2>
+            <h2 class="news-title" data-i18n="news.title">📰 Latest News</h2>
             <div class="news-grid" id="newsGrid"></div>
         </section>
 
         <!-- Sezione System Monitor -->
         <section class="system-monitor" id="systemMonitor">
-            <h2 class="system-title">💻 System Monitor</h2>
+            <h2 class="system-title" data-i18n="system.title">💻 System Monitor</h2>
             <div class="system-stats" id="systemStats">
                 <div class="stat-card cpu-card">
                     <div class="stat-icon">🖥️</div>
                     <div class="stat-info">
-                        <div class="stat-label">CPU</div>
+                        <div class="stat-label" data-i18n="system.cpu">CPU</div>
                         <div class="stat-value" id="cpuValue">--%</div>
-                        <div class="stat-details" id="cpuDetails">Caricamento...</div>
+                        <div class="stat-details" id="cpuDetails">Loading...</div>
                     </div>
                     <div class="stat-bar">
                         <div class="stat-bar-fill" id="cpuBar"></div>
@@ -64,9 +72,9 @@
                 <div class="stat-card memory-card">
                     <div class="stat-icon">🧠</div>
                     <div class="stat-info">
-                        <div class="stat-label">RAM</div>
+                        <div class="stat-label" data-i18n="system.memory">RAM</div>
                         <div class="stat-value" id="memoryValue">--%</div>
-                        <div class="stat-details" id="memoryDetails">Caricamento...</div>
+                        <div class="stat-details" id="memoryDetails">Loading...</div>
                     </div>
                     <div class="stat-bar">
                         <div class="stat-bar-fill" id="memoryBar"></div>
@@ -76,29 +84,30 @@
                 <div class="stat-card uptime-card">
                     <div class="stat-icon">⏱️</div>
                     <div class="stat-info">
-                        <div class="stat-label">Uptime</div>
+                        <div class="stat-label" data-i18n="system.uptime">Uptime</div>
                         <div class="stat-value" id="uptimeValue">--</div>
-                        <div class="stat-details">Load: <span id="loadValue">--</span></div>
+                        <div class="stat-details"><span data-i18n="system.load">Load</span>: <span id="loadValue">--</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- Network Stats -->
             <div class="network-stats" id="networkStats">
-                <h3>🌐 Interfacce di Rete</h3>
+                <h3 data-i18n="system.network">🌐 Network Interfaces</h3>
                 <div class="network-list" id="networkList">
-                    <div class="network-loading">Caricamento...</div>
+                    <div class="network-loading" data-i18n="config.loading">Loading...</div>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Proxy Server via Tailscale</p>
+            <p data-i18n="app.subtitle">Proxy Server via Tailscale</p>
         </footer>
     </div>
 
-    <!-- Carica configurazione e script -->
+    <!-- Carica i18n, configurazione e script -->
+    <script src="i18n.js"></script>
     <script src="config.js"></script>
     <script src="script.js"></script>
 </body>

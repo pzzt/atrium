@@ -35,11 +35,41 @@ body {
     position: relative;
 }
 
-/* Config Button */
-.config-button {
+/* Top Controls - Language & Config */
+.top-controls {
     position: absolute;
     top: 0;
     right: 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Language Selector */
+.language-selector {
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 25px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    outline: none;
+}
+
+.language-selector:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-hover);
+}
+
+.language-selector:focus {
+    border-color: var(--accent);
+}
+
+/* Config Button */
+.config-button {
     width: 50px;
     height: 50px;
     display: flex;
