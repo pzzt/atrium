@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Bottone configurazione -->
+        <a href="config.html" class="config-button" title="Configurazione">⚙️</a>
+
+        <!-- Header con orologio -->
+        <header class="header">
+            <h1 class="title">Home Proxy</h1>
+            <div class="clock" id="clock">
+                <div class="time" id="time">--:--:--</div>
+                <div class="date" id="date">Caricamento...</div>
+            </div>
+        </header>
+
+        <!-- Barra di ricerca -->
+        <div class="search-container">
+            <input
+                type="text"
+                id="search"
+                class="search-input"
+                placeholder="🔍 Cerca servizi..."
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Griglia servizi (generata dinamicamente) -->
+        <main class="services-grid" id="servicesGrid"></main>
+
+        <!-- Nessun risultato ricerca -->
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>Nessun servizio trovato</p>
+        </div>
+
+        <!-- Sezione News (generata dinamicamente) -->
+        <section class="news-section" id="newsSection" style="display: none;">
+            <h2 class="news-title">📰 Ultime Notizie</h2>
+            <div class="news-grid" id="newsGrid"></div>
+        </section>
+
+        <!-- Sezione System Monitor -->
+        <section class="system-monitor" id="systemMonitor">
+            <h2 class="system-title">💻 System Monitor</h2>
+            <div class="system-stats" id="systemStats">
+                <div class="stat-card cpu-card">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-info">
+                        <div class="stat-label">CPU</div>
+                        <div class="stat-value" id="cpuValue">--%</div>
+                        <div class="stat-details" id="cpuDetails">Caricamento...</div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" id="cpuBar"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card memory-card">
+                    <div class="stat-icon">🧠</div>
+                    <div class="stat-info">
+                        <div class="stat-label">RAM</div>
+                        <div class="stat-value" id="memoryValue">--%</div>
+                        <div class="stat-details" id="memoryDetails">Caricamento...</div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" id="memoryBar"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card uptime-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Uptime</div>
+                        <div class="stat-value" id="uptimeValue">--</div>
+                        <div class="stat-details">Load: <span id="loadValue">--</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Stats -->
+            <div class="network-stats" id="networkStats">
+                <h3>🌐 Interfacce di Rete</h3>
+                <div class="network-list" id="networkList">
+                    <div class="network-loading">Caricamento...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Proxy Server via Tailscale</p>
+        </footer>
+    </div>
+
+    <!-- Carica configurazione e script -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  proxy-homepage:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: proxy-homepage:latest
+    container_name: proxy-homepage
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    # Optional: Add custom network
+    # networks:
+    #   - proxy-network
+    environment:
+      - TZ=Europe/Rome
+    # Optional: Add volume for persistence (if needed in future)
+    # volumes:
+    #   - proxy-data:/data
+    # Optional: Resource limits for Raspberry Pi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+
+# Optional: Define network
+# networks:
+#   proxy-network:
+#     driver: bridge
+
+# Optional: Define volume
+# volumes:
+#   proxy-data:
+#     driver: local

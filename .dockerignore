@@ -1,0 +1,19 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation e scripts
+*.md
+scripts
+.dockerignore
+
+# Development files
+*.log
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*~

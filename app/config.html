@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurazione - Proxy Home</title>
+    <link rel="stylesheet" href="config-page.css">
+</head>
+<body>
+    <div class="config-container">
+        <!-- Header -->
+        <header class="config-header">
+            <a href="index.html" class="back-button">← Torna alla Home</a>
+            <h1>⚙️ Configurazione</h1>
+            <p>Gestisci i tuoi servizi e feed RSS</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="services">🚀 Servizi</button>
+            <button class="tab-button" data-tab="news">📰 Feed RSS</button>
+        </div>
+
+        <!-- Tab Servizi -->
+        <div class="tab-content active" id="services-tab">
+            <div class="section-header">
+                <h2>I Tuoi Servizi</h2>
+                <button class="add-button" id="addServiceBtn">+ Aggiungi Servizio</button>
+            </div>
+
+            <div class="services-list" id="servicesList">
+                <!-- Generato dinamicamente -->
+            </div>
+
+            <!-- Form nuovo servizio (nascosto) -->
+            <div class="service-form" id="serviceForm" style="display: none;">
+                <h3>Nuovo Servizio</h3>
+                <form id="newServiceForm">
+                    <div class="form-group">
+                        <label>Nome *</label>
+                        <input type="text" id="serviceName" required placeholder="es. Jellyfin">
+                    </div>
+                    <div class="form-group">
+                        <label>URL *</label>
+                        <input type="url" id="serviceUrl" required placeholder="http://192.168.1.151:8096/">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrizione</label>
+                        <input type="text" id="serviceDesc" placeholder="Media Server - Film e Serie TV">
+                    </div>
+                    <div class="form-group">
+                        <label>Icona (emoji)</label>
+                        <input type="text" id="serviceIcon" placeholder="🎬" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Colore Tema</label>
+                        <select id="serviceColor">
+                            <option value="jellyfin">Jellyfin (Rosso)</option>
+                            <option value="navidrome">Navidrome (Turchese)</option>
+                            <option value="purple">Viola</option>
+                            <option value="blue">Blu</option>
+                            <option value="green">Verde</option>
+                            <option value="orange">Arancione</option>
+                            <option value="pink">Rosa</option>
+                            <option value="yellow">Giallo</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="save-button">Salva</button>
+                        <button type="button" class="cancel-button" id="cancelServiceBtn">Annulla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab News -->
+        <div class="tab-content" id="news-tab">
+            <div class="section-header">
+                <h2>Feed RSS</h2>
+                <button class="add-button" id="addFeedBtn">+ Aggiungi Feed</button>
+            </div>
+
+            <div class="feeds-list" id="feedsList">
+                <!-- Generato dinamicamente -->
+            </div>
+
+            <!-- Form nuovo feed (nascosto) -->
+            <div class="feed-form" id="feedForm" style="display: none;">
+                <h3>Nuovo Feed RSS</h3>
+                <form id="newFeedForm">
+                    <div class="form-group">
+                        <label>Nome Fonte *</label>
+                        <input type="text" id="feedName" required placeholder="es. Il Post">
+                    </div>
+                    <div class="form-group">
+                        <label>URL Feed RSS *</label>
+                        <input type="url" id="feedUrl" required placeholder="https://ilpost.it/feed/">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="save-button">Salva</button>
+                        <button type="button" class="cancel-button" id="cancelFeedBtn">Annulla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Azioni globali -->
+        <div class="global-actions">
+            <button class="reset-button" id="resetBtn">Ripristina Default</button>
+            <button class="export-button" id="exportBtn">Esporta Configurazione</button>
+        </div>
+    </div>
+
+    <!-- Carica configurazione prima della logica -->
+    <script src="config.js"></script>
+    <script src="config-page.js"></script>
+</body>
+</html>
