@@ -6,6 +6,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub](https://img.shields.io/badge/github-published-lightgray)
 
+![Atrium Dashboard](https://github.com/user-attachments/assets/efd46fe5-8cb5-4699-a8a8-c215cbfc72d2)
+
 ## ✨ Features
 
 - 🎨 **Modern Dark Theme** - Beautiful gradient UI with smooth animations
@@ -53,25 +55,6 @@ docker compose up -d
 ```
 
 The compose.yaml file uses port 8080 by default. You can edit the port mapping in compose.yaml if needed.
-
-## 📸 Screenshots
-
-### Main Dashboard
-
-![Atrium Dashboard](https://github.com/user-attachments/assets/efd46fe5-8cb5-4699-a8a8-c215cbfc72d2)
-
-**Features shown:**
-- Real-time clock and date
-- Service cards with custom icons and colors
-- Live system statistics (CPU, RAM, Network)
-- RSS feed news section
-
-### Configuration Page
-
-- Add/edit/remove services with custom icons and colors
-- Manage RSS feeds
-- Customize application title
-- Export configuration backup
 
 ## 🏗️ Architecture
 
