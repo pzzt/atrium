@@ -56,13 +56,18 @@ The compose.yaml file uses port 8080 by default. You can edit the port mapping i
 
 ## 📸 Screenshots
 
-**Main Dashboard**
+### Main Dashboard
+
+![Atrium Dashboard](https://github.com/user-attachments/assets/efd46fe5-8cb5-4699-a8a8-c215cbfc72d2)
+
+**Features shown:**
 - Real-time clock and date
 - Service cards with custom icons and colors
 - Live system statistics (CPU, RAM, Network)
 - RSS feed news section
 
-**Configuration Page**
+### Configuration Page
+
 - Add/edit/remove services with custom icons and colors
 - Manage RSS feeds
 - Customize application title
