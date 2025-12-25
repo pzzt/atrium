@@ -1,0 +1,100 @@
+# ============================================
+# .gitignore per Proxy Homepage Docker
+# ============================================
+
+# --- Docker ---
+*.log
+docker-compose.override.yml
+
+# Docker volumes and data
+docker/volumes/
+*.tar
+*.tar.gz
+
+# Docker build cache
+.dockerignore.bak
+
+# --- Git ---
+.git
+.gitignore
+.gitattributes
+
+# --- IDE e Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-*
+
+# --- Node.js (se usato in futuro) ---
+node_modules/
+npm-debug.log
+package-lock.json
+yarn-error.log
+
+# --- Python (per API) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# --- Log e File Temporanei ---
+*.log
+*.tmp
+*.temp
+*.cache
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Backup e Old Files ---
+*.bak
+*.backup
+*.old
+*~
+
+# --- Build Artifacts ---
+.build/
+dist/
+target/
+
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- Coverage e Testing ---
+coverage/
+.nyc_output/
+*.cover
+
+# --- Documentazione generata ---
+docs/_build/
+site/
+
+# --- Claude Code ---
+.claude/
+.claude-plan
+*.plan.md
+.claude-plan/
+CLAUDE.md
+
+# --- User downloaded configs ---
+*.json
+!app/i18n/*.json
