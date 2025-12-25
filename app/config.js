@@ -1,5 +1,5 @@
 // ============================================
-// CONFIGURAZIONE HOME PAGE PROXY
+// CONFIGURAZIONE ATRIUM
 // ============================================
 
 // Titolo dell'applicazione (vuoto = usa default dal i18n)

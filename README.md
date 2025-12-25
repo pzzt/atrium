@@ -1,4 +1,4 @@
-# Proxy Homepage - Docker Webapp
+# Atrium - Docker Webapp
 
 Dashboard web per gestire servizi self-hosted (Jellyfin, Navidrome, ecc.) con feed RSS integrati.
 
@@ -49,7 +49,7 @@ cd docker-app
 docker-compose -f docker/docker-compose.yml up -d
 
 # Oppure run manuale
-docker run -d --name proxy-homepage -p 80:80 --restart unless-stopped proxy-homepage:latest
+docker run -d --name atrium -p 80:80 --restart unless-stopped atrium:latest
 ```
 
 ### Opzione 2: Build Remoto e Deploy
@@ -160,22 +160,22 @@ docker-app/
 
 ```bash
 # Verifica stato container
-docker ps | grep proxy-homepage
+docker ps | grep atrium
 
 # Vedi log
-docker logs -f proxy-homepage
+docker logs -f atrium
 
 # Riavvia
-docker restart proxy-homepage
+docker restart atrium
 
 # Ferma
-docker stop proxy-homepage
+docker stop atrium
 
 # Rimuovi
-docker rm proxy-homepage
+docker rm atrium
 
 # Vedi resource usage
-docker stats proxy-homepage
+docker stats atrium
 ```
 
 ### Aggiornare l'App
@@ -197,13 +197,13 @@ docker-compose -f docker/docker-compose.yml up -d --force-recreate
 
 ```bash
 # Vedi log per errori
-docker logs proxy-homepage
+docker logs atrium
 
 # Verifica che la porta 80 sia libera
 sudo netstat -tlnp | grep :80
 
 # Prova run manuale senza detach
-docker run --rm -p 80:80 proxy-homepage:latest
+docker run --rm -p 80:80 atrium:latest
 ```
 
 ### Impossibile accedere da altri dispositivi
@@ -215,7 +215,7 @@ sudo ufw allow 80/tcp
 
 2. Verifica che nginx sia in ascolto:
 ```bash
-docker exec proxy-homepage netstat -tlnp
+docker exec atrium netstat -tlnp
 ```
 
 ### Architettura non supportata

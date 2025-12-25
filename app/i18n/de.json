@@ -1,7 +1,7 @@
 {
   "lang": "de",
   "strings": {
-    "app.title": "Proxy Homepage",
+    "app.title": "Atrium",
     "app.subtitle": "Proxy-Server über Tailscale",
     "search.placeholder": "🔍 Dienste suchen...",
     "no.results": "Keine Dienste gefunden",

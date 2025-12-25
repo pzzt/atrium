@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Proxy Homepage - System Stats API
+Atrium - System Stats API
 Legge statistiche di sistema e le espone via HTTP
 """
 import json

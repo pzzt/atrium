@@ -7,10 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Local Development
 ```bash
 # Build Docker image (multi-arch: ARM64/ARMv7/x86_64)
-docker build -f docker/Dockerfile -t proxy-homepage:dev .
+docker build -f docker/Dockerfile -t atrium:dev .
 
 # Run container for testing
-docker run -d --name proxy-homepage-dev -p 8080:80 proxy-homepage:dev
+docker run -d --name atrium-dev -p 8080:80 atrium:dev
 
 # Access at http://localhost:8080
 ```
@@ -28,26 +28,26 @@ docker-compose -f docker/docker-compose.yml up -d
 ### Testing Changes
 After modifying any files in `app/`, rebuild and restart:
 ```bash
-docker build -f docker/Dockerfile -t proxy-homepage:test .
-docker rm -f proxy-test
-docker run -d --name proxy-test -p 8082:80 proxy-homepage:test
+docker build -f docker/Dockerfile -t atrium:test .
+docker rm -f atrium-test
+docker run -d --name atrium-test -p 8082:80 atrium:test
 ```
 
 ### Container Management
 ```bash
 # View logs
-docker logs -f proxy-homepage
+docker logs -f atrium
 
 # Check resource usage (important for Raspberry Pi)
-docker stats proxy-homepage
+docker stats atrium
 
 # Restart
-docker restart proxy-homepage
+docker restart atrium
 ```
 
 ## Architecture
 
-This is a **single-page static webapp** with no backend database, running in Docker with nginx + Python API.
+This is **Atrium**, a single-page static webapp with no backend database, running in Docker with nginx + Python API.
 
 ### Key Architectural Decisions
 
@@ -110,8 +110,9 @@ let value = translations.strings['app.title'];  // Direct access, not nested tra
 3. Use in JS: `element.textContent = t('config.newKey')` (manual update needed)
 
 **Custom Application Title**:
+- Default title is "Atrium" (defined in i18n files)
+- Users can override via Config page → General tab
 - Stored in config as `appTitle` (empty string = use i18n default)
-- Set via Config page → General tab
 - In `script.js`, call `updateAppTitle()` after i18n init and language change
 - Function checks `appConfig.appTitle` first, falls back to `t('app.title')`
 

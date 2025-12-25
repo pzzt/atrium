@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for Raspberry Pi 3 (ARM)
-# Proxy Homepage Webapp con System Monitor
+# Atrium Webapp con System Monitor
 
 FROM nginx:alpine
 
