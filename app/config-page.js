@@ -1,4 +1,71 @@
 // ============================================
+// i18n Initialization
+// ============================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await initI18N();
+
+    // Setup language selector
+    const langSelector = document.getElementById('languageSelector');
+    if (langSelector) {
+        langSelector.addEventListener('change', async (e) => {
+            await setLanguage(e.target.value);
+            // Re-render components with dynamic content
+            renderServices();
+            renderFeeds();
+        });
+    }
+});
+
+function updateAllConfigStrings() {
+    // Update back button
+    const backBtn = document.querySelector('.back-button');
+    if (backBtn) backBtn.textContent = t('config.back');
+
+    // Update title and subtitle
+    const title = document.querySelector('.config-header h1');
+    const subtitle = document.querySelector('.config-header p');
+    if (title) title.textContent = t('config.title');
+    if (subtitle) subtitle.textContent = t('config.subtitle');
+
+    // Update tabs
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        const tab = btn.dataset.tab;
+        if (tab === 'general') {
+            btn.textContent = t('config.general');
+        } else if (tab === 'services') {
+            btn.textContent = t('config.services');
+        } else if (tab === 'news') {
+            btn.textContent = t('config.news');
+        }
+    });
+
+    // Update section headers
+    const generalH2 = document.querySelector('#general-tab h2');
+    const servicesH2 = document.querySelector('#services-tab h2');
+    const feedsH2 = document.querySelector('#news-tab h2');
+    if (generalH2) generalH2.textContent = t('config.generalSettings');
+    if (servicesH2) servicesH2.textContent = t('config.yourServices');
+    if (feedsH2) feedsH2.textContent = t('config.rssFeeds');
+
+    // Update buttons
+    const addServiceBtn = document.getElementById('addServiceBtn');
+    const addFeedBtn = document.getElementById('addFeedBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+
+    if (addServiceBtn) addServiceBtn.textContent = t('config.addService');
+    if (addFeedBtn) addFeedBtn.textContent = t('config.addFeed');
+    if (resetBtn) resetBtn.textContent = t('config.reset');
+    if (exportBtn) exportBtn.textContent = t('config.export');
+
+    // Re-render services and feeds with updated strings
+    renderServices();
+    renderFeeds();
+}
+
+
+// ============================================
 // Config Page - Gestione LocalStorage
 // ============================================
 
@@ -12,6 +79,7 @@ function loadConfig() {
     }
     // Default da config.js
     return {
+        appTitle: appTitle || "",
         services: services || [],
         newsFeeds: newsFeeds || []
     };
@@ -44,6 +112,39 @@ tabButtons.forEach(button => {
 });
 
 // ============================================
+// General Settings Form
+// ============================================
+
+const generalForm = document.getElementById('generalForm');
+const appTitleInput = document.getElementById('appTitleInput');
+
+// Load current app title
+function loadGeneralSettings() {
+    const config = loadConfig();
+    appTitleInput.value = config.appTitle || "";
+}
+
+// Save general settings
+generalForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const config = loadConfig();
+    config.appTitle = appTitleInput.value.trim();
+    saveConfig(config);
+
+    // Show save confirmation
+    const saveBtn = generalForm.querySelector('.save-button');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = '✓ Saved';
+    setTimeout(() => {
+        saveBtn.textContent = originalText;
+    }, 1500);
+});
+
+// Load general settings on page load
+loadGeneralSettings();
+
+// ============================================
 // Render Services
 // ============================================
 
@@ -55,7 +156,7 @@ function renderServices() {
         servicesList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">🚀</div>
-                <p>Nessun servizio configurato</p>
+                <p>${t('config.emptyServices')}</p>
             </div>
         `;
         return;
@@ -74,7 +175,7 @@ function renderServices() {
                     ${service.description ? `<div class="service-desc">${service.description}</div>` : ''}
                 </div>
             </div>
-            <button class="delete-button" onclick="deleteService(${index})">Elimina</button>
+            <button class="delete-button" onclick="deleteService(${index})">${t('config.delete')}</button>
         `;
         servicesList.appendChild(item);
     });
@@ -92,7 +193,7 @@ function renderFeeds() {
         feedsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">📰</div>
-                <p>Nessun feed RSS configurato</p>
+                <p>${t('config.emptyFeeds')}</p>
             </div>
         `;
         return;
@@ -107,7 +208,7 @@ function renderFeeds() {
                 <div class="feed-name">${feed.name}</div>
                 <div class="feed-url">${feed.url}</div>
             </div>
-            <button class="delete-button" onclick="deleteFeed(${index})">Elimina</button>
+            <button class="delete-button" onclick="deleteFeed(${index})">${t('config.delete')}</button>
         `;
         feedsList.appendChild(item);
     });
@@ -157,7 +258,7 @@ newServiceForm.addEventListener('submit', (e) => {
 });
 
 function deleteService(index) {
-    if (!confirm('Sei sicuro di voler eliminare questo servizio?')) return;
+    if (!confirm(t('config.confirmDelete', { item: 'service' }))) return;
 
     const config = loadConfig();
     config.services.splice(index, 1);
@@ -206,7 +307,7 @@ newFeedForm.addEventListener('submit', (e) => {
 });
 
 function deleteFeed(index) {
-    if (!confirm('Sei sicuro di voler eliminare questo feed?')) return;
+    if (!confirm(t('config.confirmDelete', { item: 'feed' }))) return;
 
     const config = loadConfig();
     config.newsFeeds.splice(index, 1);
@@ -220,12 +321,12 @@ function deleteFeed(index) {
 
 // Reset to defaults
 document.getElementById('resetBtn').addEventListener('click', () => {
-    if (!confirm('Sei sicuro di voler ripristinare la configurazione predefinita? Tutte le modifiche andranno perse.')) return;
+    if (!confirm(t('config.confirmReset'))) return;
 
     localStorage.removeItem(STORAGE_KEY);
     renderServices();
     renderFeeds();
-    alert('Configurazione ripristinata!');
+    alert(t('config.resetDone'));
 });
 
 // Export configuration

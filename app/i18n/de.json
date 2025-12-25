@@ -14,6 +14,10 @@
     "config.addFeed": "+ Feed hinzufügen",
     "config.noServices": "Keine Dienste konfiguriert",
     "config.noFeeds": "Keine RSS-Feeds konfiguriert",
+    "config.general": "🔧 Allgemein",
+    "config.generalSettings": "Allgemeine Einstellungen",
+    "config.appTitle": "Anwendungstitel",
+    "config.appTitleHint": "Leer lassen, um den Standardtitel aus den Übersetzungen zu verwenden",
     "config.save": "Speichern",
     "config.cancel": "Abbrechen",
     "config.delete": "Löschen",
@@ -52,7 +56,11 @@
     "language.en": "English",
     "language.it": "Italiano",
     "language.de": "Deutsch",
-    "config.open": "Open →",
-    "news.loadingText": "Loading news..."
+    "config.open": "Öffnen →",
+    "news.loadingText": "Nachrichten laden...",
+    "config.yourServices": "Ihre Dienste",
+    "config.rssFeeds": "RSS-Feeds",
+    "config.emptyServices": "Keine Dienste konfiguriert",
+    "config.emptyFeeds": "Keine RSS-Feeds konfiguriert"
   }
 }

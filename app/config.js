@@ -2,6 +2,9 @@
 // CONFIGURAZIONE HOME PAGE PROXY
 // ============================================
 
+// Titolo dell'applicazione (vuoto = usa default dal i18n)
+const appTitle = "";
+
 // Servizi da mostrare nella homepage
 const services = [
     // Aggiungi i tuoi servizi qui seguendo questo formato:

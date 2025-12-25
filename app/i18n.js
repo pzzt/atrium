@@ -23,7 +23,8 @@ async function loadTranslations(lang) {
         if (lang !== DEFAULT_LANG) {
             return loadTranslations(DEFAULT_LANG);
         }
-        return {};
+        translations = { strings: {} };
+        return translations;
     }
 }
 
@@ -54,12 +55,12 @@ async function setLanguage(lang) {
 
 // Translate a key with optional parameters
 function t(key, params = {}) {
-    const keys = key.split('.');
-    let value = translations.strings;
+    // Try to get the translation directly from the strings object
+    let value = translations.strings ? translations.strings[key] : undefined;
 
-    for (const k of keys) {
-        value = value[k];
-        if (value === undefined) return key;
+    // If not found, return the key itself
+    if (value === undefined) {
+        return key;
     }
 
     // Replace placeholders like {n}, {item}, etc.
@@ -88,6 +89,11 @@ function t(key, params = {}) {
 
 // Update all translatable elements on the page
 function updatePageLanguage() {
+    // Check if translations are loaded
+    if (!translations.strings || Object.keys(translations.strings).length === 0) {
+        return;
+    }
+
     // Update elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');

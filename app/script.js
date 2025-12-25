@@ -6,16 +6,35 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await initI18N();
 
+    // Update app title from config or use i18n default
+    updateAppTitle();
+
     // Setup language selector
     const langSelector = document.getElementById('languageSelector');
     if (langSelector) {
         langSelector.addEventListener('change', async (e) => {
             await setLanguage(e.target.value);
-            // Reload components that need translation
-            updateAllTranslatableElements();
+            // Re-render components that need dynamic translation
+            updateAppTitle();
+            renderServices();
+            renderNews();
+            updateSystemMonitorLabels();
         });
     }
 });
+
+// Update app title
+function updateAppTitle() {
+    const titleElement = document.querySelector('.title');
+    if (!titleElement) return;
+
+    // Use custom title from config if set, otherwise use i18n default
+    if (appConfig.appTitle && appConfig.appTitle.trim()) {
+        titleElement.textContent = appConfig.appTitle;
+    } else {
+        titleElement.textContent = t('app.title');
+    }
+}
 
 function updateAllTranslatableElements() {
     // Update search placeholder
@@ -70,6 +89,7 @@ function loadConfig() {
     }
     // Default da config.js
     return {
+        appTitle: appTitle || "",
         services: services || [],
         newsFeeds: newsFeeds || []
     };

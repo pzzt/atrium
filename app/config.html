@@ -1,31 +1,57 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurazione - Proxy Home</title>
+    <title>Configuration - Proxy Home</title>
     <link rel="stylesheet" href="config-page.css">
 </head>
 <body>
     <div class="config-container">
-        <!-- Header -->
+        <!-- Header with language selector -->
         <header class="config-header">
-            <a href="index.html" class="back-button">← Torna alla Home</a>
-            <h1>⚙️ Configurazione</h1>
-            <p>Gestisci i tuoi servizi e feed RSS</p>
+            <select id="languageSelector" class="language-selector" title="Language">
+                <option value="en">🇺🇸 English</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="de">🇩🇪 Deutsch</option>
+            </select>
+            <a href="index.html" class="back-button" data-i18n="config.back">← Back to Home</a>
+            <h1 data-i18n="config.title">⚙️ Configuration</h1>
+            <p data-i18n="config.subtitle">Manage your services and RSS feeds</p>
         </header>
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-button active" data-tab="services">🚀 Servizi</button>
-            <button class="tab-button" data-tab="news">📰 Feed RSS</button>
+            <button class="tab-button active" data-tab="general" data-i18n="config.general">🔧 General</button>
+            <button class="tab-button" data-tab="services" data-i18n="config.services">🚀 Services</button>
+            <button class="tab-button" data-tab="news" data-i18n="config.news">📰 RSS Feeds</button>
+        </div>
+
+        <!-- Tab General -->
+        <div class="tab-content active" id="general-tab">
+            <div class="section-header">
+                <h2 data-i18n="config.generalSettings">General Settings</h2>
+            </div>
+
+            <div class="general-form">
+                <form id="generalForm">
+                    <div class="form-group">
+                        <label data-i18n="config.appTitle">Application Title</label>
+                        <input type="text" id="appTitleInput" placeholder="Proxy Homepage">
+                        <small data-i18n="config.appTitleHint">Leave empty to use the default title from translations</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="save-button" data-i18n="config.save">Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Tab Servizi -->
-        <div class="tab-content active" id="services-tab">
+        <div class="tab-content" id="services-tab">
             <div class="section-header">
-                <h2>I Tuoi Servizi</h2>
-                <button class="add-button" id="addServiceBtn">+ Aggiungi Servizio</button>
+                <h2 data-i18n="config.yourServices">Your Services</h2>
+                <button class="add-button" id="addServiceBtn" data-i18n="config.addService">+ Add Service</button>
             </div>
 
             <div class="services-list" id="servicesList">
@@ -34,40 +60,40 @@
 
             <!-- Form nuovo servizio (nascosto) -->
             <div class="service-form" id="serviceForm" style="display: none;">
-                <h3>Nuovo Servizio</h3>
+                <h3 data-i18n="config.newService">New Service</h3>
                 <form id="newServiceForm">
                     <div class="form-group">
-                        <label>Nome *</label>
-                        <input type="text" id="serviceName" required placeholder="es. Jellyfin">
+                        <label data-i18n="config.serviceName">Name *</label>
+                        <input type="text" id="serviceName" required placeholder="ex. Jellyfin">
                     </div>
                     <div class="form-group">
-                        <label>URL *</label>
+                        <label data-i18n="config.serviceUrl">URL *</label>
                         <input type="url" id="serviceUrl" required placeholder="http://192.168.1.151:8096/">
                     </div>
                     <div class="form-group">
-                        <label>Descrizione</label>
-                        <input type="text" id="serviceDesc" placeholder="Media Server - Film e Serie TV">
+                        <label data-i18n="config.serviceDesc">Description</label>
+                        <input type="text" id="serviceDesc" placeholder="Media Server - Movies and TV Shows">
                     </div>
                     <div class="form-group">
-                        <label>Icona (emoji)</label>
+                        <label data-i18n="config.serviceIcon">Icon (emoji)</label>
                         <input type="text" id="serviceIcon" placeholder="🎬" maxlength="2">
                     </div>
                     <div class="form-group">
-                        <label>Colore Tema</label>
+                        <label data-i18n="config.serviceColor">Theme Color</label>
                         <select id="serviceColor">
-                            <option value="jellyfin">Jellyfin (Rosso)</option>
-                            <option value="navidrome">Navidrome (Turchese)</option>
-                            <option value="purple">Viola</option>
-                            <option value="blue">Blu</option>
-                            <option value="green">Verde</option>
-                            <option value="orange">Arancione</option>
-                            <option value="pink">Rosa</option>
-                            <option value="yellow">Giallo</option>
+                            <option value="jellyfin">Jellyfin (Red)</option>
+                            <option value="navidrome">Navidrome (Teal)</option>
+                            <option value="purple">Purple</option>
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="orange">Orange</option>
+                            <option value="pink">Pink</option>
+                            <option value="yellow">Yellow</option>
                         </select>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="save-button">Salva</button>
-                        <button type="button" class="cancel-button" id="cancelServiceBtn">Annulla</button>
+                        <button type="submit" class="save-button" data-i18n="config.save">Save</button>
+                        <button type="button" class="cancel-button" id="cancelServiceBtn" data-i18n="config.cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -76,8 +102,8 @@
         <!-- Tab News -->
         <div class="tab-content" id="news-tab">
             <div class="section-header">
-                <h2>Feed RSS</h2>
-                <button class="add-button" id="addFeedBtn">+ Aggiungi Feed</button>
+                <h2 data-i18n="config.rssFeeds">RSS Feeds</h2>
+                <button class="add-button" id="addFeedBtn" data-i18n="config.addFeed">+ Add Feed</button>
             </div>
 
             <div class="feeds-list" id="feedsList">
@@ -86,19 +112,19 @@
 
             <!-- Form nuovo feed (nascosto) -->
             <div class="feed-form" id="feedForm" style="display: none;">
-                <h3>Nuovo Feed RSS</h3>
+                <h3 data-i18n="config.newFeed">New RSS Feed</h3>
                 <form id="newFeedForm">
                     <div class="form-group">
-                        <label>Nome Fonte *</label>
-                        <input type="text" id="feedName" required placeholder="es. Il Post">
+                        <label data-i18n="config.feedName">Source Name *</label>
+                        <input type="text" id="feedName" required placeholder="ex. The Verge">
                     </div>
                     <div class="form-group">
-                        <label>URL Feed RSS *</label>
-                        <input type="url" id="feedUrl" required placeholder="https://ilpost.it/feed/">
+                        <label data-i18n="config.feedUrl">RSS Feed URL *</label>
+                        <input type="url" id="feedUrl" required placeholder="https://example.com/feed/">
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="save-button">Salva</button>
-                        <button type="button" class="cancel-button" id="cancelFeedBtn">Annulla</button>
+                        <button type="submit" class="save-button" data-i18n="config.save">Save</button>
+                        <button type="button" class="cancel-button" id="cancelFeedBtn" data-i18n="config.cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -106,12 +132,13 @@
 
         <!-- Azioni globali -->
         <div class="global-actions">
-            <button class="reset-button" id="resetBtn">Ripristina Default</button>
-            <button class="export-button" id="exportBtn">Esporta Configurazione</button>
+            <button class="reset-button" id="resetBtn" data-i18n="config.reset">Restore Defaults</button>
+            <button class="export-button" id="exportBtn" data-i18n="config.export">Export Configuration</button>
         </div>
     </div>
 
-    <!-- Carica configurazione prima della logica -->
+    <!-- Carica i18n, configurazione e logica -->
+    <script src="i18n.js"></script>
     <script src="config.js"></script>
     <script src="config-page.js"></script>
 </body>

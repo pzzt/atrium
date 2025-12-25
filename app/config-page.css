@@ -36,12 +36,41 @@ body {
     text-align: center;
     margin-bottom: 30px;
     position: relative;
+    padding-top: 50px;
+}
+
+.config-header-top {
+    position: absolute;
+    top: 10px;
+    right: 0;
+}
+
+.language-selector {
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 25px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    outline: none;
+}
+
+.language-selector:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-hover);
+}
+
+.language-selector:focus {
+    border-color: var(--accent);
 }
 
 .back-button {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 10px;
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 1rem;
