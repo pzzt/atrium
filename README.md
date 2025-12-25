@@ -1,291 +1,138 @@
-# Atrium - Docker Webapp
+# Atrium
 
-Dashboard web per gestire servizi self-hosted (Jellyfin, Navidrome, ecc.) con feed RSS integrati.
+> A self-hosted services dashboard with system monitoring, optimized for Raspberry Pi
 
-Ottimizzata per **Raspberry Pi 3** e altre architetture ARM.
-
-![Version](https://img.shields.io/badge/version-1.0-blue)
-![Docker](https://img.shields.io/badge/docker-multi--arch-blue)
+![Docker](https://img.shields.io/badge/docker-multi--arch-blue?logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![GitHub](https://img.shields.io/badge/github-published-lightgray)
 
-## Caratteristiche
+## ✨ Features
 
-- 🎨 **Design moderno** con tema scuro e animazioni
-- ⚙️ **Configurazione via UI** - Nessun edit di file manuali
-- 🔍 **Ricerca istantanea** tra i servizi
-- 📰 **Feed RSS** integrati per le notizie
-- ⏰ **Orologio** in tempo reale
-- 📱 **Responsive** per mobile e desktop
-- 💾 **LocalStorage** per persistenza configurazione
-- 🐳 **Docker** multi-arch (ARM64/ARMv7/x86_64)
-- ⚡ **Leggero** - ottimizzato per Raspberry Pi
+- 🎨 **Modern Dark Theme** - Beautiful gradient UI with smooth animations
+- ⚙️ **Web UI Configuration** - Add/manage services and RSS feeds without editing files
+- 📊 **Real-time System Monitoring** - CPU, RAM, Network, Uptime stats via Python API
+- 🌍 **Multi-language Support** - English, Italian, German (UI switching)
+- 📰 **RSS Feed Integration** - Latest news from your favorite sources
+- 🔍 **Instant Search** - Quick filter through your services
+- 📱 **Responsive Design** - Works perfectly on mobile and desktop
+- 💾 **Browser Persistence** - Configuration saved in localStorage
+- 🐳 **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
+- ⚡ **Lightweight** - Optimized for Raspberry Pi 3 (~10-20MB RAM)
 
-## Screenshots
+## 🚀 Quick Start
 
-La homepage mostra:
-- Orologio e data in tempo reale
-- Card colorate per ogni servizio
-- Sezione notizie dai feed RSS
-- Bottone configurazione (⚙️) in alto a destra
-
-## Architettura Supportate
-
-- **ARM64** (Raspberry Pi 3/4 con OS 64-bit)
-- **ARMv7** (Raspberry Pi 3 con OS 32-bit)
-- **x86_64** (Test/develop su PC)
-
-## Guida Rapida
-
-### Opzione 1: Build e Deploy su Raspberry Pi
+### Option 1: Pull from Docker Hub (Recommended)
 
 ```bash
-# Clona o copia la directory docker-app sul tuo Pi
-cd docker-app
-
-# Build dell'immagine (rileva automaticamente l'architettura)
-./scripts/build.sh
-
-# Avvia il container
-docker-compose -f docker/docker-compose.yml up -d
-
-# Oppure run manuale
-docker run -d --name atrium -p 80:80 --restart unless-stopped atrium:latest
+docker run -d --name atrium -p 80:80 --restart unless-stopped pzzt/atrium:latest
 ```
 
-### Opzione 2: Build Remoto e Deploy
+Access at: `http://your-raspberry-pi-ip`
+
+### Option 2: Build from Source
 
 ```bash
-# Sul tuo PC (x86_64)
-cd docker-app
+# Clone the repository
+git clone https://github.com/pzzt/atrium.git
+cd atrium
 
-# 1. Configura variabili per il deploy
-export PI_USER="pi"
-export PI_HOST="192.168.1.100"  # o raspberrypi.local
-export PI_PORT="22"
-export PI_DEPLOY_KEY="~/.ssh/id_rsa"  # opzionale
+# Build the image
+docker build -f docker/Dockerfile -t atrium:latest .
 
-# 2. Build multi-arch
-./scripts/build.sh
-
-# 3. Deploy su Raspberry Pi
-./scripts/deploy.sh
+# Run the container
+docker run -d --name atrium -p 80:80 atrium:latest
 ```
 
-### Opzione 3: Docker Compose (direttamente su Pi)
+### Using Docker Compose
 
 ```bash
-cd docker-app
+cd atrium
 docker-compose -f docker/docker-compose.yml up -d
 ```
 
-## Accesso
+## 📸 Screenshots
 
-Dopo il deploy, apri il browser su:
+**Main Dashboard**
+- Real-time clock and date
+- Service cards with custom icons and colors
+- Live system statistics (CPU, RAM, Network)
+- RSS feed news section
 
-- **http://localhost** (se sul Pi stesso)
-- **http://indirizzo-ip-del-pi** (da altro dispositivo nella rete)
+**Configuration Page**
+- Add/edit/remove services with custom icons and colors
+- Manage RSS feeds
+- Customize application title
+- Export configuration backup
 
-## Configurazione
+## 🏗️ Architecture
 
-### Via Web UI (Consigliato)
+**Atrium** is a single-page static webapp with no backend database:
 
-1. Clicca sull'ingranaggio ⚙️ in alto a destra
-2. Nella tab "Servizi":
-   - Clicca "+ Aggiungi Servizio"
-   - Compila nome, URL, descrizione, icona
-   - Scegli un colore tema
-   - Salva
-3. Nella tab "Feed RSS":
-   - Clicca "+ Aggiungi Feed"
-   - Inserisci nome fonte e URL RSS
-   - Salva
+- **Frontend**: Pure HTML/CSS/JavaScript (no frameworks)
+- **Web Server**: nginx (alpine-based)
+- **System Monitor**: Python 3 HTTP server reading `/proc` filesystem
+- **Storage**: Browser localStorage (client-side only)
+- **Deployment**: Docker container
 
-### Configurazione Predefinita
+### Tech Stack
 
-I servizi di default sono definiti in `app/config.js`:
+- **nginx**: Lightweight web server
+- **Python 3**: System stats API
+- **Vanilla JS**: No frameworks, pure JavaScript
+- **CSS3**: Custom properties, flexbox, grid
+- **i18n**: JSON-based translation system
+
+## ⚙️ Configuration
+
+All configuration is done through the web UI:
+
+1. Click the ⚙️ icon in the top-right corner
+2. **General Tab**: Customize application title
+3. **Services Tab**: Add/remove services
+   - Name (required)
+   - URL (required)
+   - Description
+   - Icon (emoji)
+   - Theme color
+4. **RSS Feeds Tab**: Add/remove news feeds
+
+### Default Configuration
+
+Edit `app/config.js` to set defaults before building:
 
 ```javascript
-const services = [
-    {
-        name: "Jellyfin",
-        url: "http://192.168.1.151:8096/",
-        description: "Media Server - Film e Serie TV",
-        icon: "🎬",
-        color: "jellyfin"
-    },
-    {
-        name: "Navidrome",
-        url: "http://192.168.1.151:30045/",
-        description: "Music Server - La tua musica",
-        icon: "🎵",
-        color: "navidrome"
-    }
-];
+const appTitle = "";
+const services = [];
+const newsFeeds = [];
 ```
 
-### Modificare i Default
+## 📊 System Monitor
 
-Per cambiare i servizi di default, modifica `app/config.js` e rebuild:
+Atrium includes a real-time system monitor that displays:
 
-```bash
-./scripts/build.sh
-docker-compose -f docker/docker-compose.yml up -d --force-recreate
-```
+- **CPU Usage**: Percentage and core count
+- **Memory**: Total, used, available, percentage
+- **Network Interfaces**: Interface names, RX/TX traffic
+- **Uptime**: System uptime in days/hours/minutes
+- **Load Average**: 1, 5, 15 minute load averages
 
-## Struttura Progetto
+Data is fetched every 5 seconds from `/proc` filesystem (Linux only).
 
-```
-docker-app/
-├── app/                    # File dell'applicazione
-│   ├── index.html         # Homepage
-│   ├── config.html        # Pagina configurazione
-│   ├── style.css          # Stili homepage
-│   ├── config-page.css    # Stili configurazione
-│   ├── script.js          # Logica homepage
-│   ├── config.js          # Configurazione default
-│   └── config-page.js     # Logica configurazione
-├── docker/
-│   ├── Dockerfile         # Immagine Docker
-│   ├── nginx.conf         # Configurazione nginx
-│   └── docker-compose.yml # Docker Compose
-├── scripts/
-│   ├── build.sh          # Script build
-│   └── deploy.sh         # Script deploy remoto
-└── README.md             # Questo file
-```
+## 🌍 Multi-Language Support
 
-## Gestione Container
+Atrium supports three languages:
 
-### Comandi Utili
+- 🇬🇧 **English** (default)
+- 🇮🇹 **Italiano**
+- 🇩🇪 **Deutsch**
 
-```bash
-# Verifica stato container
-docker ps | grep atrium
+Language is automatically detected from browser settings, or manually selected via the dropdown in the top-right corner.
 
-# Vedi log
-docker logs -f atrium
+## 🎨 Customization
 
-# Riavvia
-docker restart atrium
+### Change Colors
 
-# Ferma
-docker stop atrium
-
-# Rimuovi
-docker rm atrium
-
-# Vedi resource usage
-docker stats atrium
-```
-
-### Aggiornare l'App
-
-```bash
-# 1. Pull nuove versioni dei file (se usando git)
-git pull
-
-# 2. Rebuild
-./scripts/build.sh
-
-# 3. Riavvia container
-docker-compose -f docker/docker-compose.yml up -d --force-recreate
-```
-
-## Troubleshooting
-
-### Container non parte
-
-```bash
-# Vedi log per errori
-docker logs atrium
-
-# Verifica che la porta 80 sia libera
-sudo netstat -tlnp | grep :80
-
-# Prova run manuale senza detach
-docker run --rm -p 80:80 atrium:latest
-```
-
-### Impossibile accedere da altri dispositivi
-
-1. Verifica firewall sul Pi:
-```bash
-sudo ufw allow 80/tcp
-```
-
-2. Verifica che nginx sia in ascolto:
-```bash
-docker exec atrium netstat -tlnp
-```
-
-### Architettura non supportata
-
-Se hai problemi con l'architettura, verifica:
-
-```bash
-# Sul Pi
-uname -m
-
-# Dovresti vedere: armv7l o aarch64
-```
-
-Per cross-compilation da x86 a ARM, assicurati di avere Docker Buildx:
-
-```bash
-docker buildx version
-```
-
-### Build fallisce
-
-```bash
-# Pulisci cache Docker
-docker builder prune -a
-
-# Build con verbose output
-docker build --no-cache -f docker/Dockerfile .
-```
-
-## Performance su Raspberry Pi 3
-
-L'immagine è ottimizzata per:
-- **Bassa memoria**: ~10-20MB RAM
-- **CPU ARM**: nginx compilato per ARM
-- **Storage**: Compressione gzip abilitata
-- **Cache**: Browser caching per assets statici
-
-Resource limits raccomandati (già nel docker-compose.yml):
-- CPU: 1 core max
-- RAM: 256MB max
-
-## Backup e Restore
-
-### Backup Configurazione
-
-La configurazione è salvata nel **localStorage del browser**. Per backup:
-
-1. Vai nella pagina Configurazione (⚙️)
-2. Clicca "Esporta Configurazione"
-3. Scarica il file JSON
-
-### Restore
-
-Dalla pagina Configurazione:
-1. Modifica il file `app/config.js`
-2. Inserisci i servizi dal backup
-3. Rebuild e redeploy
-
-## Sicurezza
-
-- Nessuna database o server-side
-- Configurazione salvata solo nel browser (localStorage)
-- Nessuna trasmissione dati esterna
-- Feed RSS fetched via API pubblica (rss2json.com)
-
-## Personalizzazione
-
-### Cambiare Colori
-
-Modifica `app/style.css`:
+Edit `app/style.css`:
 
 ```css
 :root {
@@ -294,47 +141,155 @@ Modifica `app/style.css`:
     --bg-card: #16213e;
     --text-primary: #eee;
     --text-secondary: #aaa;
+    --accent: #667eea;
 }
 ```
 
-### Aggiungere Nuovi Colori Tema
+### Add New Theme Color
 
-In `app/style.css` aggiungi:
+Add to `app/style.css`:
 
 ```css
-.service-card.miollo::before {
-    background: linear-gradient(90deg, #tueft, #tueft2);
+.service-card.mycolor::before {
+    background: linear-gradient(90deg, #ff0000, #00ff00);
 }
 
-.service-card.miollo .card-icon {
-    background: linear-gradient(135deg, #tueft, #tueft2);
+.service-card.mycolor .card-icon {
+    background: linear-gradient(135deg, #ff0000, #00ff00);
 }
 ```
 
-## Roadmap
+### Add Custom Title
 
-- [ ] Autenticazione opzionale
-- [ ] Temi chiari/switch tema
-- [ ] Pinned services
-- [ ] Export/import configurazione da UI
-- [ ] Multi-language support
-- [ ] Widgets (weather, calendar)
+Set a custom title in the Configuration → General tab, or leave empty to use the default "Atrium".
 
-## Licenza
+## 🔧 Management
 
-MIT
+### View Logs
 
-## Contributi
+```bash
+docker logs -f atrium
+```
 
-Contributi benvenuti! Apri una issue o PR.
+### Restart Container
 
-## Supporto
+```bash
+docker restart atrium
+```
 
-Per problemi:
-1. Controlla la sezione Troubleshooting
-2. Verifica i log del container
-3. Apri una issue su GitHub con dettagli
+### Update to Latest Version
+
+```bash
+docker pull pzzt/atrium:latest
+docker stop atrium
+docker rm atrium
+docker run -d --name atrium -p 80:80 --restart unless-stopped pzzt/atrium:latest
+```
+
+### Resource Usage (Recommended Limits)
+
+- **CPU**: 1 core max
+- **RAM**: 256MB max
+
+Already configured in `docker/docker-compose.yml`.
+
+## 📋 Supported Architectures
+
+- **ARM64** (Raspberry Pi 3/4 - 64-bit OS)
+- **ARMv7** (Raspberry Pi 3 - 32-bit OS)
+- **x86_64** (Intel/AMD - for testing)
+
+## 🐛 Troubleshooting
+
+### Container Won't Start
+
+```bash
+# Check logs
+docker logs atrium
+
+# Verify port 80 is available
+sudo netstat -tlnp | grep :80
+
+# Run without detach for debugging
+docker run --rm -p 80:80 atrium:latest
+```
+
+### Can't Access from Other Devices
+
+1. Check firewall on Raspberry Pi:
+   ```bash
+   sudo ufw allow 80/tcp
+   ```
+
+2. Verify nginx is listening:
+   ```bash
+   docker exec atrium netstat -tlnp
+   ```
+
+### System Monitor Shows "API Not Available"
+
+- System monitor only works on Linux (reads `/proc` filesystem)
+- On macOS/Windows during development, statistics will show as unavailable
+- This is expected behavior
+
+## 💾 Backup & Restore
+
+### Backup
+
+1. Go to Configuration page (⚙️)
+2. Click "Export Configuration"
+3. Download the JSON file
+
+### Restore
+
+1. Edit `app/config.js`
+2. Add your services/feeds from the backup
+3. Rebuild and restart container
+
+## 🔒 Security
+
+- **No database** - All configuration stored in browser localStorage
+- **No external calls** - RSS feeds fetched client-side
+- **No tracking** - No analytics or telemetry
+- **No authentication** - Deploy on trusted network only (or add reverse proxy auth)
+
+## 🛣️ Roadmap
+
+- [x] Multi-language support (EN, IT, DE)
+- [x] System monitoring (CPU, RAM, Network)
+- [x] Custom application title
+- [ ] Optional authentication
+- [ ] Light/dark theme toggle
+- [ ] Pinned/favorite services
+- [ ] Import configuration from UI
+- [ ] Weather widget
+- [ ] Calendar widget
+- [ ] Service health checks
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 💬 Support
+
+- **Issues**: [GitHub Issues](https://github.com/pzzt/atrium/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/pzzt/atrium/discussions)
+
+## 🙏 Acknowledgments
+
+Built with ❤️ for self-hosting enthusiasts.
+
+Inspired by the need for a simple, beautiful dashboard to access self-hosted services.
 
 ---
 
-Creato con ❤️ per self-hosting
+**Atrium** - Your personal services entry point. 🏛️
