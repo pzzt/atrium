@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update app title from config or use i18n default
     updateAppTitle();
 
+    // Initialize search and keyboard shortcuts
+    initializeSearchAndShortcuts();
+
     // Setup language selector
     const langSelector = document.getElementById('languageSelector');
     if (langSelector) {
@@ -169,11 +172,6 @@ function renderServices() {
     });
 }
 
-// Genera i servizi al caricamento
-document.addEventListener('DOMContentLoaded', () => {
-    renderServices();
-});
-
 
 // ============================================
 // Clock & Date Functionality
@@ -203,58 +201,58 @@ setInterval(updateClock, 1000);
 
 
 // ============================================
-// Search Functionality
+// Search Functionality & Keyboard Shortcuts
 // ============================================
 
-const searchInput = document.getElementById('search');
-const noResults = document.getElementById('noResults');
+// Initialize search and keyboard shortcuts after DOM is ready
+function initializeSearchAndShortcuts() {
+    const searchInput = document.getElementById('search');
+    const noResults = document.getElementById('noResults');
 
-searchInput.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase().trim();
-    const serviceCards = document.querySelectorAll('.service-card');
-    let visibleCount = 0;
+    if (!searchInput || !noResults) return;
 
-    serviceCards.forEach(card => {
-        const title = card.querySelector('.card-title').textContent.toLowerCase();
-        const description = card.querySelector('.card-description').textContent.toLowerCase();
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const serviceCards = document.querySelectorAll('.service-card');
+        let visibleCount = 0;
 
-        // Search in both title and description
-        if (title.includes(searchTerm) || description.includes(searchTerm)) {
-            card.classList.remove('hidden');
-            visibleCount++;
+        serviceCards.forEach(card => {
+            const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+            const description = card.querySelector('.card-description')?.textContent.toLowerCase() || '';
+
+            // Search in both title and description
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+
+        // Show/hide "no results" message
+        if (visibleCount === 0 && searchTerm !== '') {
+            noResults.style.display = 'block';
         } else {
-            card.classList.add('hidden');
+            noResults.style.display = 'none';
         }
     });
 
-    // Show/hide "no results" message
-    if (visibleCount === 0 && searchTerm !== '') {
-        noResults.style.display = 'block';
-    } else {
-        noResults.style.display = 'none';
-    }
-});
+    // Focus search on '/' key
+    document.addEventListener('keydown', function(e) {
+        // Only if not typing in an input
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+            e.preventDefault();
+            searchInput.focus();
+        }
 
-
-// ============================================
-// Keyboard Shortcuts
-// ============================================
-
-// Focus search on '/' key
-document.addEventListener('keydown', function(e) {
-    // Only if not typing in an input
-    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        searchInput.focus();
-    }
-
-    // Clear search on Escape
-    if (e.key === 'Escape') {
-        searchInput.value = '';
-        searchInput.dispatchEvent(new Event('input'));
-        searchInput.blur();
-    }
-});
+        // Clear search on Escape
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+            searchInput.blur();
+        }
+    });
+}
 
 
 // ============================================

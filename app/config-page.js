@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load configuration from API
     pageConfig = await loadConfig();
 
+    // Initialize UI with loaded config
+    initializeUI();
+
     // Setup language selector
     const langSelector = document.getElementById('languageSelector');
     if (langSelector) {
@@ -112,57 +115,163 @@ async function saveConfig(config) {
     return true;
 }
 
-// ============================================
-// Tab Management
-// ============================================
+// Initialize all UI elements and event listeners
+function initializeUI() {
+    // Update all translatable strings
+    updateAllConfigStrings();
 
-const tabButtons = document.querySelectorAll('.tab-button');
-const tabContents = document.querySelectorAll('.tab-content');
+    // Initialize tabs
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const tab = button.dataset.tab;
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tab = button.dataset.tab;
 
-        // Update buttons
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
+            // Update buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
-        // Update content
-        tabContents.forEach(content => content.classList.remove('active'));
-        document.getElementById(`${tab}-tab`).classList.add('active');
+            // Update content
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        });
     });
-});
 
-// ============================================
-// General Settings Form
-// ============================================
+    // Initialize General Settings Form
+    const generalForm = document.getElementById('generalForm');
+    const appTitleInput = document.getElementById('appTitleInput');
 
-const generalForm = document.getElementById('generalForm');
-const appTitleInput = document.getElementById('appTitleInput');
-
-// Load current app title
-function loadGeneralSettings() {
+    // Load current app title
     appTitleInput.value = pageConfig.appTitle || "";
+
+    // Save general settings
+    generalForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        pageConfig.appTitle = appTitleInput.value.trim();
+        const success = await saveConfig(pageConfig);
+
+        if (success) {
+            // Show save confirmation
+            const saveBtn = generalForm.querySelector('.save-button');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✓ Saved';
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+            }, 1500);
+        }
+    });
+
+    // Initialize Add Service handlers
+    const addServiceBtn = document.getElementById('addServiceBtn');
+    const serviceForm = document.getElementById('serviceForm');
+    const newServiceForm = document.getElementById('newServiceForm');
+    const cancelServiceBtn = document.getElementById('cancelServiceBtn');
+
+    addServiceBtn.addEventListener('click', () => {
+        serviceForm.style.display = 'block';
+        addServiceBtn.style.display = 'none';
+    });
+
+    cancelServiceBtn.addEventListener('click', () => {
+        serviceForm.style.display = 'none';
+        addServiceBtn.style.display = 'block';
+        newServiceForm.reset();
+    });
+
+    newServiceForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const newService = {
+            name: document.getElementById('serviceName').value,
+            url: document.getElementById('serviceUrl').value,
+            description: document.getElementById('serviceDesc').value || '',
+            icon: document.getElementById('serviceIcon').value || '📁',
+            color: document.getElementById('serviceColor').value
+        };
+
+        pageConfig.services.push(newService);
+        await saveConfig(pageConfig);
+
+        renderServices();
+
+        // Reset form
+        serviceForm.style.display = 'none';
+        addServiceBtn.style.display = 'block';
+        newServiceForm.reset();
+    });
+
+    // Initialize Add Feed handlers
+    const addFeedBtn = document.getElementById('addFeedBtn');
+    const feedForm = document.getElementById('feedForm');
+    const newFeedForm = document.getElementById('newFeedForm');
+    const cancelFeedBtn = document.getElementById('cancelFeedBtn');
+
+    addFeedBtn.addEventListener('click', () => {
+        feedForm.style.display = 'block';
+        addFeedBtn.style.display = 'none';
+    });
+
+    cancelFeedBtn.addEventListener('click', () => {
+        feedForm.style.display = 'none';
+        addFeedBtn.style.display = 'block';
+        newFeedForm.reset();
+    });
+
+    newFeedForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const newFeed = {
+            name: document.getElementById('feedName').value,
+            url: document.getElementById('feedUrl').value
+        };
+
+        pageConfig.newsFeeds.push(newFeed);
+        await saveConfig(pageConfig);
+
+        renderFeeds();
+
+        // Reset form
+        feedForm.style.display = 'none';
+        addFeedBtn.style.display = 'block';
+        newFeedForm.reset();
+    });
+
+    // Initialize Reset button
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+        if (!confirm(t('config.confirmReset'))) return;
+
+        const success = await resetConfigOnAPI();
+
+        if (success) {
+            // Reload page to get fresh config
+            pageConfig = await loadConfig();
+            renderServices();
+            renderFeeds();
+            appTitleInput.value = pageConfig.appTitle || "";
+            alert(t('config.resetDone'));
+        } else {
+            alert('Error resetting configuration. Please try again.');
+        }
+    });
+
+    // Initialize Export button
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        const dataStr = JSON.stringify(pageConfig, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'atrium-config.json';
+        link.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // Initial render
+    renderServices();
+    renderFeeds();
 }
-
-// Save general settings
-generalForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    pageConfig.appTitle = appTitleInput.value.trim();
-    await saveConfig(pageConfig);
-
-    // Show save confirmation
-    const saveBtn = generalForm.querySelector('.save-button');
-    const originalText = saveBtn.textContent;
-    saveBtn.textContent = '✓ Saved';
-    setTimeout(() => {
-        saveBtn.textContent = originalText;
-    }, 1500);
-});
-
-// Load general settings on page load
-loadGeneralSettings();
 
 // ============================================
 // Render Services
@@ -170,6 +279,7 @@ loadGeneralSettings();
 
 function renderServices() {
     const servicesList = document.getElementById('servicesList');
+    if (!servicesList) return;
 
     if (pageConfig.services.length === 0) {
         servicesList.innerHTML = `
@@ -206,6 +316,7 @@ function renderServices() {
 
 function renderFeeds() {
     const feedsList = document.getElementById('feedsList');
+    if (!feedsList) return;
 
     if (pageConfig.newsFeeds.length === 0) {
         feedsList.innerHTML = `
@@ -232,139 +343,19 @@ function renderFeeds() {
     });
 }
 
-// ============================================
-// Add Service
-// ============================================
-
-const addServiceBtn = document.getElementById('addServiceBtn');
-const serviceForm = document.getElementById('serviceForm');
-const newServiceForm = document.getElementById('newServiceForm');
-const cancelServiceBtn = document.getElementById('cancelServiceBtn');
-
-addServiceBtn.addEventListener('click', () => {
-    serviceForm.style.display = 'block';
-    addServiceBtn.style.display = 'none';
-});
-
-cancelServiceBtn.addEventListener('click', () => {
-    serviceForm.style.display = 'none';
-    addServiceBtn.style.display = 'block';
-    newServiceForm.reset();
-});
-
-newServiceForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const newService = {
-        name: document.getElementById('serviceName').value,
-        url: document.getElementById('serviceUrl').value,
-        description: document.getElementById('serviceDesc').value || '',
-        icon: document.getElementById('serviceIcon').value || '📁',
-        color: document.getElementById('serviceColor').value
-    };
-
-    pageConfig.services.push(newService);
-    await saveConfig(pageConfig);
-
-    renderServices();
-
-    // Reset form
-    serviceForm.style.display = 'none';
-    addServiceBtn.style.display = 'block';
-    newServiceForm.reset();
-});
-
-async function deleteService(index) {
+// Global functions for onclick handlers
+window.deleteService = async function(index) {
     if (!confirm(t('config.confirmDelete', { item: 'service' }))) return;
 
     pageConfig.services.splice(index, 1);
     await saveConfig(pageConfig);
     renderServices();
-}
+};
 
-// ============================================
-// Add Feed
-// ============================================
-
-const addFeedBtn = document.getElementById('addFeedBtn');
-const feedForm = document.getElementById('feedForm');
-const newFeedForm = document.getElementById('newFeedForm');
-const cancelFeedBtn = document.getElementById('cancelFeedBtn');
-
-addFeedBtn.addEventListener('click', () => {
-    feedForm.style.display = 'block';
-    addFeedBtn.style.display = 'none';
-});
-
-cancelFeedBtn.addEventListener('click', () => {
-    feedForm.style.display = 'none';
-    addFeedBtn.style.display = 'block';
-    newFeedForm.reset();
-});
-
-newFeedForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const newFeed = {
-        name: document.getElementById('feedName').value,
-        url: document.getElementById('feedUrl').value
-    };
-
-    pageConfig.newsFeeds.push(newFeed);
-    await saveConfig(pageConfig);
-
-    renderFeeds();
-
-    // Reset form
-    feedForm.style.display = 'none';
-    addFeedBtn.style.display = 'block';
-    newFeedForm.reset();
-});
-
-async function deleteFeed(index) {
+window.deleteFeed = async function(index) {
     if (!confirm(t('config.confirmDelete', { item: 'feed' }))) return;
 
     pageConfig.newsFeeds.splice(index, 1);
     await saveConfig(pageConfig);
     renderFeeds();
-}
-
-// ============================================
-// Global Actions
-// ============================================
-
-// Reset to defaults
-document.getElementById('resetBtn').addEventListener('click', async () => {
-    if (!confirm(t('config.confirmReset'))) return;
-
-    const success = await resetConfigOnAPI();
-
-    if (success) {
-        // Reload page to get fresh config
-        pageConfig = await loadConfig();
-        renderServices();
-        renderFeeds();
-        alert(t('config.resetDone'));
-    } else {
-        alert('Error resetting configuration. Please try again.');
-    }
-});
-
-// Export configuration
-document.getElementById('exportBtn').addEventListener('click', () => {
-    const dataStr = JSON.stringify(pageConfig, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'proxy-home-config.json';
-    link.click();
-    URL.revokeObjectURL(url);
-});
-
-// ============================================
-// Initialize
-// ============================================
-
-renderServices();
-renderFeeds();
+};
