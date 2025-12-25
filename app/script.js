@@ -6,6 +6,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await initI18N();
 
+    // Load configuration from API
+    await loadConfiguration();
+
     // Update app title from config or use i18n default
     updateAppTitle();
 
@@ -80,23 +83,68 @@ function updateSystemMonitorLabels() {
 // Caricamento Configurazione
 // ============================================
 
-const STORAGE_KEY = 'proxyHomeConfig';
+// Load configuration from API
+async function loadConfiguration() {
+    const config = await loadConfigFromAPI();
 
-function loadConfig() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        return JSON.parse(stored);
+    if (config && !config.error) {
+        appConfig = {
+            appTitle: config.appTitle || appTitle || "",
+            services: config.services || services || [],
+            newsFeeds: config.newsFeeds || newsFeeds || []
+        };
+    } else {
+        // Fallback to defaults if API fails
+        console.error('Failed to load config from API, using defaults');
+        appConfig = {
+            appTitle: appTitle || "",
+            services: services || [],
+            newsFeeds: newsFeeds || []
+        };
+
+        // Show error notification to user
+        showErrorNotification('Unable to load configuration. Check if the container is running properly.');
     }
-    // Default da config.js
-    return {
-        appTitle: appTitle || "",
-        services: services || [],
-        newsFeeds: newsFeeds || []
-    };
+
+    // Render services and news after loading config
+    renderServices();
+    renderNews();
 }
 
-// Carica configurazione all'avvio
-const appConfig = loadConfig();
+// Show error notification to user
+function showErrorNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'error-notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff6b6b;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Initialize appConfig (will be populated by loadConfiguration)
+let appConfig = {
+    appTitle: "",
+    services: [],
+    newsFeeds: []
+};
 
 
 // ============================================

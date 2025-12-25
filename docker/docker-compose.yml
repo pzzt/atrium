@@ -9,6 +9,8 @@ services:
       - "80:80"
     environment:
       - TZ=Europe/Rome
+    volumes:
+      - atrium-data:/data
     # Optional: Resource limits for Raspberry Pi
     deploy:
       resources:
@@ -18,3 +20,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 64M
+
+volumes:
+  atrium-data:
+    driver: local

@@ -6,6 +6,11 @@ FROM nginx:alpine
 # Install Python 3 per l'API delle statistiche
 RUN apk add --no-cache python3
 
+# Create data directory with proper permissions
+RUN mkdir -p /data && \
+    chown -R nginx:nginx /data && \
+    chmod 755 /data
+
 # Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
 

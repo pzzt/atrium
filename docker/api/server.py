@@ -5,9 +5,12 @@ Legge statistiche di sistema e le espone via HTTP
 """
 import json
 import time
+import fcntl
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 import os
+
+CONFIG_PATH = '/data/config.json'
 
 class StatsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -19,7 +22,7 @@ class StatsHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
 
@@ -33,14 +36,112 @@ class StatsHandler(BaseHTTPRequestHandler):
             response = {'memory': get_memory_info()}
         elif path == '/api/stats/network':
             response = {'network': get_network_stats()}
+        elif path == '/api/config':
+            response = get_config()
         else:
             response = {'error': 'Not found'}
 
         self.wfile.write(json.dumps(response).encode())
 
+    def do_POST(self):
+        # Parse path
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        # Read request body
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length) if content_length > 0 else b''
+
+        # CORS headers
+        if path == '/api/config' or path == '/api/config/import':
+            try:
+                data = json.loads(body.decode('utf-8')) if body else {}
+                if path == '/api/config':
+                    response = save_config(data)
+                else:  # /api/config/import
+                    response = save_config(data)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write(json.dumps(response).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_DELETE(self):
+        # Parse path
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path == '/api/config':
+            response = delete_config()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
     def log_message(self, format, *args):
         # Suppress default logging
         pass
+
+def get_config():
+    """Get configuration from file"""
+    try:
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, 'r') as f:
+                return json.load(f)
+        else:
+            # Return default empty config
+            return {
+                'appTitle': '',
+                'services': [],
+                'newsFeeds': []
+            }
+    except Exception as e:
+        return {'error': str(e)}
+
+def save_config(data):
+    """Save configuration to file"""
+    try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+
+        # Atomic write with temp file
+        temp_path = CONFIG_PATH + '.tmp'
+        with open(temp_path, 'w') as f:
+            json.dump(data, f, indent=2)
+
+        # Atomic rename
+        os.rename(temp_path, CONFIG_PATH)
+
+        return {'status': 'ok'}
+    except Exception as e:
+        return {'error': str(e)}
+
+def delete_config():
+    """Delete configuration file"""
+    try:
+        if os.path.exists(CONFIG_PATH):
+            os.remove(CONFIG_PATH)
+        return {'status': 'ok'}
+    except Exception as e:
+        return {'error': str(e)}
 
 def get_cpu_usage():
     """Get CPU usage percentage"""

@@ -2,8 +2,18 @@
 // i18n Initialization
 // ============================================
 
+// Global config variable (will be loaded from API)
+let pageConfig = {
+    appTitle: "",
+    services: [],
+    newsFeeds: []
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     await initI18N();
+
+    // Load configuration from API
+    pageConfig = await loadConfig();
 
     // Setup language selector
     const langSelector = document.getElementById('languageSelector');
@@ -66,28 +76,40 @@ function updateAllConfigStrings() {
 
 
 // ============================================
-// Config Page - Gestione LocalStorage
+// Config Page - Gestione Configurazione
 // ============================================
 
-const STORAGE_KEY = 'proxyHomeConfig';
+// Load configuration from API
+async function loadConfig() {
+    const config = await loadConfigFromAPI();
 
-// Carica configurazione da localStorage o usa default
-function loadConfig() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        return JSON.parse(stored);
+    if (config && !config.error) {
+        return {
+            appTitle: config.appTitle || appTitle || "",
+            services: config.services || services || [],
+            newsFeeds: config.newsFeeds || newsFeeds || []
+        };
+    } else {
+        // Fallback to defaults if API fails
+        console.error('Failed to load config from API, using defaults');
+        return {
+            appTitle: appTitle || "",
+            services: services || [],
+            newsFeeds: newsFeeds || []
+        };
     }
-    // Default da config.js
-    return {
-        appTitle: appTitle || "",
-        services: services || [],
-        newsFeeds: newsFeeds || []
-    };
 }
 
-// Salva configurazione in localStorage
-function saveConfig(config) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+// Save configuration to API
+async function saveConfig(config) {
+    const success = await saveConfigToAPI(config);
+
+    if (!success) {
+        alert(t('config.saveError') || 'Error saving configuration. Please try again.');
+        return false;
+    }
+
+    return true;
 }
 
 // ============================================
@@ -120,17 +142,15 @@ const appTitleInput = document.getElementById('appTitleInput');
 
 // Load current app title
 function loadGeneralSettings() {
-    const config = loadConfig();
-    appTitleInput.value = config.appTitle || "";
+    appTitleInput.value = pageConfig.appTitle || "";
 }
 
 // Save general settings
-generalForm.addEventListener('submit', (e) => {
+generalForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const config = loadConfig();
-    config.appTitle = appTitleInput.value.trim();
-    saveConfig(config);
+    pageConfig.appTitle = appTitleInput.value.trim();
+    await saveConfig(pageConfig);
 
     // Show save confirmation
     const saveBtn = generalForm.querySelector('.save-button');
@@ -149,10 +169,9 @@ loadGeneralSettings();
 // ============================================
 
 function renderServices() {
-    const config = loadConfig();
     const servicesList = document.getElementById('servicesList');
 
-    if (config.services.length === 0) {
+    if (pageConfig.services.length === 0) {
         servicesList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">🚀</div>
@@ -163,7 +182,7 @@ function renderServices() {
     }
 
     servicesList.innerHTML = '';
-    config.services.forEach((service, index) => {
+    pageConfig.services.forEach((service, index) => {
         const item = document.createElement('div');
         item.className = 'service-item';
         item.innerHTML = `
@@ -186,10 +205,9 @@ function renderServices() {
 // ============================================
 
 function renderFeeds() {
-    const config = loadConfig();
     const feedsList = document.getElementById('feedsList');
 
-    if (config.newsFeeds.length === 0) {
+    if (pageConfig.newsFeeds.length === 0) {
         feedsList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">📰</div>
@@ -200,7 +218,7 @@ function renderFeeds() {
     }
 
     feedsList.innerHTML = '';
-    config.newsFeeds.forEach((feed, index) => {
+    pageConfig.newsFeeds.forEach((feed, index) => {
         const item = document.createElement('div');
         item.className = 'feed-item';
         item.innerHTML = `
@@ -234,10 +252,9 @@ cancelServiceBtn.addEventListener('click', () => {
     newServiceForm.reset();
 });
 
-newServiceForm.addEventListener('submit', (e) => {
+newServiceForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const config = loadConfig();
     const newService = {
         name: document.getElementById('serviceName').value,
         url: document.getElementById('serviceUrl').value,
@@ -246,8 +263,8 @@ newServiceForm.addEventListener('submit', (e) => {
         color: document.getElementById('serviceColor').value
     };
 
-    config.services.push(newService);
-    saveConfig(config);
+    pageConfig.services.push(newService);
+    await saveConfig(pageConfig);
 
     renderServices();
 
@@ -257,12 +274,11 @@ newServiceForm.addEventListener('submit', (e) => {
     newServiceForm.reset();
 });
 
-function deleteService(index) {
+async function deleteService(index) {
     if (!confirm(t('config.confirmDelete', { item: 'service' }))) return;
 
-    const config = loadConfig();
-    config.services.splice(index, 1);
-    saveConfig(config);
+    pageConfig.services.splice(index, 1);
+    await saveConfig(pageConfig);
     renderServices();
 }
 
@@ -286,17 +302,16 @@ cancelFeedBtn.addEventListener('click', () => {
     newFeedForm.reset();
 });
 
-newFeedForm.addEventListener('submit', (e) => {
+newFeedForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const config = loadConfig();
     const newFeed = {
         name: document.getElementById('feedName').value,
         url: document.getElementById('feedUrl').value
     };
 
-    config.newsFeeds.push(newFeed);
-    saveConfig(config);
+    pageConfig.newsFeeds.push(newFeed);
+    await saveConfig(pageConfig);
 
     renderFeeds();
 
@@ -306,12 +321,11 @@ newFeedForm.addEventListener('submit', (e) => {
     newFeedForm.reset();
 });
 
-function deleteFeed(index) {
+async function deleteFeed(index) {
     if (!confirm(t('config.confirmDelete', { item: 'feed' }))) return;
 
-    const config = loadConfig();
-    config.newsFeeds.splice(index, 1);
-    saveConfig(config);
+    pageConfig.newsFeeds.splice(index, 1);
+    await saveConfig(pageConfig);
     renderFeeds();
 }
 
@@ -320,19 +334,25 @@ function deleteFeed(index) {
 // ============================================
 
 // Reset to defaults
-document.getElementById('resetBtn').addEventListener('click', () => {
+document.getElementById('resetBtn').addEventListener('click', async () => {
     if (!confirm(t('config.confirmReset'))) return;
 
-    localStorage.removeItem(STORAGE_KEY);
-    renderServices();
-    renderFeeds();
-    alert(t('config.resetDone'));
+    const success = await resetConfigOnAPI();
+
+    if (success) {
+        // Reload page to get fresh config
+        pageConfig = await loadConfig();
+        renderServices();
+        renderFeeds();
+        alert(t('config.resetDone'));
+    } else {
+        alert('Error resetting configuration. Please try again.');
+    }
 });
 
 // Export configuration
 document.getElementById('exportBtn').addEventListener('click', () => {
-    const config = loadConfig();
-    const dataStr = JSON.stringify(config, null, 2);
+    const dataStr = JSON.stringify(pageConfig, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
