@@ -284,6 +284,11 @@ Contributions are welcome! Please:
 - **Issues**: [GitHub Issues](https://github.com/pzzt/atrium/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/pzzt/atrium/discussions)
 
+## 🔗 Links
+
+- **GitHub Repository**: [https://github.com/pzzt/atrium](https://github.com/pzzt/atrium)
+- **Docker Hub Image**: [https://hub.docker.com/r/pzzt/atrium](https://hub.docker.com/r/pzzt/atrium)
+
 ## 🙏 Acknowledgments
 
 Built with ❤️ for self-hosting enthusiasts.

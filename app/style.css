@@ -365,6 +365,28 @@ body {
     font-size: 0.9rem;
 }
 
+.footer-links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: var(--accent);
+}
+
+.footer-links .separator {
+    opacity: 0.5;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .title {
