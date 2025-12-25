@@ -50,8 +50,6 @@ jobs:
             org.opencontainers.image.description=Self-hosted services dashboard with system monitoring
             org.opencontainers.image.source=https://github.com/pzzt/atrium
             org.opencontainers.image.licenses=MIT
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Update repo description
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
