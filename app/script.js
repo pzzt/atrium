@@ -95,6 +95,21 @@ function updateSystemMonitorVisibility() {
 }
 
 function updateK3sMonitorVisibility() {
+    // Check if any K3s section is enabled
+    const anyK3sEnabled = appConfig.showK3sNodes || appConfig.showK3sPods ||
+                          appConfig.showK3sDeployments || appConfig.showK3sServices ||
+                          appConfig.showK3sEvents;
+
+    // Show/hide parent k3s-monitor section
+    const k3sMonitor = document.getElementById('k3sMonitor');
+    if (k3sMonitor) {
+        if (anyK3sEnabled) {
+            k3sMonitor.classList.remove('hidden');
+        } else {
+            k3sMonitor.classList.add('hidden');
+        }
+    }
+
     // Update each K3s section visibility independently
     const sections = [
         { id: 'k3sNodesSection', enabled: appConfig.showK3sNodes },
