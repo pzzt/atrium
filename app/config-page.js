@@ -65,11 +65,13 @@ function updateAllConfigStrings() {
     const addFeedBtn = document.getElementById('addFeedBtn');
     const resetBtn = document.getElementById('resetBtn');
     const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
 
     if (addServiceBtn) addServiceBtn.textContent = t('config.addService');
     if (addFeedBtn) addFeedBtn.textContent = t('config.addFeed');
     if (resetBtn) resetBtn.textContent = t('config.reset');
     if (exportBtn) exportBtn.textContent = t('config.export');
+    if (importBtn) importBtn.textContent = t('config.import');
 
     // Re-render services and feeds with updated strings
     renderServices();
@@ -332,6 +334,62 @@ function initializeUI() {
         link.download = 'atrium-config.json';
         link.click();
         URL.revokeObjectURL(url);
+    });
+
+    // Initialize Import button
+    const importFileInput = document.getElementById('importFileInput');
+    document.getElementById('importBtn').addEventListener('click', () => {
+        importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const importedConfig = JSON.parse(text);
+
+            // Validate imported config has required structure
+            if (!importedConfig || typeof importedConfig !== 'object') {
+                alert('Invalid configuration file');
+                return;
+            }
+
+            // Merge with current config, preserving all fields
+            pageConfig = {
+                appTitle: importedConfig.appTitle || "",
+                services: importedConfig.services || [],
+                newsFeeds: importedConfig.newsFeeds || [],
+                theme: importedConfig.theme || "catppuccin-macchiato",
+                showSystemMonitor: importedConfig.showSystemMonitor || false
+            };
+
+            // Save imported configuration
+            const success = await saveConfig(pageConfig);
+
+            if (success) {
+                // Update UI with imported config
+                appTitleInput.value = pageConfig.appTitle || "";
+                themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
+                showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+                applyTheme(pageConfig.theme);
+
+                // Re-render services and feeds
+                renderServices();
+                renderFeeds();
+
+                alert(t('config.resetDone') || 'Configuration imported successfully!');
+            } else {
+                alert('Error importing configuration. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error importing configuration:', error);
+            alert('Error reading configuration file. Please make sure it\'s a valid JSON file.');
+        }
+
+        // Reset file input
+        importFileInput.value = '';
     });
 
     // Initial render

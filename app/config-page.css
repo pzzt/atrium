@@ -422,18 +422,20 @@ body {
     margin-top: 20px;
 }
 
-/* Global Actions */
-.global-actions {
+/* Configuration Actions (Import/Export/Reset) */
+.config-actions {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     justify-content: center;
-    margin-top: 40px;
-    padding-top: 30px;
+    margin-top: 30px;
+    padding-top: 20px;
     border-top: 1px solid var(--bg-card);
+    flex-wrap: wrap;
 }
 
-.reset-button,
-.export-button {
+.import-button,
+.export-button,
+.reset-button {
     padding: 12px 25px;
     background: var(--bg-card);
     border: 2px solid var(--text-secondary);
@@ -444,14 +446,19 @@ body {
     transition: all 0.3s ease;
 }
 
-.reset-button:hover {
-    border-color: var(--danger);
-    color: var(--danger);
+.import-button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .export-button:hover {
     border-color: var(--accent);
     color: var(--accent);
+}
+
+.reset-button:hover {
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
 /* Empty State */

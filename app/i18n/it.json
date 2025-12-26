@@ -36,6 +36,7 @@
     "config.feedName": "Nome Fonte *",
     "config.feedUrl": "URL Feed RSS *",
     "config.reset": "Ripristina Default",
+    "config.import": "Importa Configurazione",
     "config.export": "Esporta Configurazione",
     "config.confirmReset": "Sei sicuro di voler ripristinare la configurazione predefinita? Tutte le modifiche andranno perse.",
     "config.confirmDelete": "Sei sicuro di voler eliminare questo {item}?",

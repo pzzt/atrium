@@ -56,6 +56,15 @@
                         <button type="submit" class="save-button" data-i18n="config.save">Save</button>
                     </div>
                 </form>
+
+                <div class="config-actions">
+                    <button class="import-button" id="importBtn" data-i18n="config.import">Import Configuration</button>
+                    <button class="export-button" id="exportBtn" data-i18n="config.export">Export Configuration</button>
+                    <button class="reset-button" id="resetBtn" data-i18n="config.reset">Restore Defaults</button>
+                </div>
+
+                <!-- Hidden file input for import -->
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
             </div>
         </div>
 
@@ -163,12 +172,6 @@
                     </div>
                 </form>
             </div>
-        </div>
-
-        <!-- Azioni globali -->
-        <div class="global-actions">
-            <button class="reset-button" id="resetBtn" data-i18n="config.reset">Restore Defaults</button>
-            <button class="export-button" id="exportBtn" data-i18n="config.export">Export Configuration</button>
         </div>
     </div>
 
