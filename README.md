@@ -17,7 +17,6 @@
 - [System Monitor](#-system-monitor)
 - [K3s Cluster Monitoring](#️-k3s-cluster-monitoring)
 - [Multi-Language Support](#-multi-language-support)
-- [Customization](#-customization)
 - [Management](#-management)
 - [Supported Architectures](#-supported-architectures)
 - [Troubleshooting](#-troubleshooting)
@@ -28,7 +27,6 @@
 - [Contributing](#-contributing)
 - [Support](#-support)
 - [Links](#-links)
-- [Acknowledgments](#-acknowledgments)
 
 ## ✨ Features
 
@@ -90,29 +88,15 @@ The compose.yaml file uses port 8080 by default. You can edit the port mapping i
 - **Language**: Browser localStorage (for language preference only)
 - **Deployment**: Docker container
 
-### Tech Stack
-
-- **nginx**: Lightweight web server
-- **Python 3**: System stats and config API
-- **Vanilla JS**: No frameworks, pure JavaScript
-- **CSS3**: Custom properties, flexbox, grid
-- **i18n**: JSON-based translation system
-
 ## ⚙️ Configuration
 
 All configuration is done through the web UI:
 
 1. Click the ⚙️ icon in the top-right corner
 2. **General Tab**: Customize application title
-3. **Services Tab**: Add/remove services
-   - Name (required)
-   - URL (required)
-   - Description
-   - Icon (emoji)
-   - Theme color
+3. **Services Tab**: Add/remove services (name, URL, description, icon, theme color)
 4. **RSS Feeds Tab**: Add/remove news feeds
-
-### Default Configuration
+5. **Nerd Tab**: Enable system monitor and K3s monitoring sections
 
 Configuration is stored in `/data/config.json` on the Docker volume. When you first run Atrium, it starts with an empty configuration. Use the web UI to add your services and feeds.
 
@@ -254,41 +238,6 @@ Atrium supports three languages:
 
 Language is automatically detected from browser settings, or manually selected via the dropdown in the top-right corner.
 
-## 🎨 Customization
-
-### Change Colors
-
-Edit `app/style.css`:
-
-```css
-:root {
-    --bg-primary: #0f0f1e;
-    --bg-secondary: #1a1a2e;
-    --bg-card: #16213e;
-    --text-primary: #eee;
-    --text-secondary: #aaa;
-    --accent: #667eea;
-}
-```
-
-### Add New Theme Color
-
-Add to `app/style.css`:
-
-```css
-.service-card.mycolor::before {
-    background: linear-gradient(90deg, #ff0000, #00ff00);
-}
-
-.service-card.mycolor .card-icon {
-    background: linear-gradient(135deg, #ff0000, #00ff00);
-}
-```
-
-### Add Custom Title
-
-Set a custom title in the Configuration → General tab, or leave empty to use the default "Atrium".
-
 ## 🔧 Management
 
 ### View Logs
@@ -360,8 +309,6 @@ docker run --rm -p 8080:80 atrium:latest
 
 ## 💾 Backup & Restore
 
-### Automatic Backup (Recommended)
-
 Your configuration is automatically stored in a Docker volume. To back it up:
 
 ```bash
@@ -373,15 +320,7 @@ docker cp atrium-config-backup.json atrium:/data/config.json
 docker restart atrium
 ```
 
-### Manual Export/Import
-
-**Export:**
-1. Go to Configuration page (⚙️)
-2. Click "Export Configuration"
-3. Download the JSON file
-
-**Import:**
-Use the docker cp method above to restore your backup. The web UI does not currently have an import feature.
+**Export**: Use the "Export Configuration" button in Configuration page (⚙️)
 
 ## 🔒 Security
 
@@ -424,14 +363,8 @@ Contributions are welcome! Please:
 
 ## 🔗 Links
 
-- **GitHub Repository**: [https://github.com/pzzt/atrium](https://github.com/pzzt/atrium)
-- **Docker Hub Image**: [https://hub.docker.com/r/pzzt/atrium](https://hub.docker.com/r/pzzt/atrium)
-
-## 🙏 Acknowledgments
-
-Built with ❤️ for self-hosting enthusiasts.
-
-Inspired by the need for a simple, beautiful dashboard to access self-hosted services.
+- **GitHub**: [https://github.com/pzzt/atrium](https://github.com/pzzt/atrium)
+- **Docker Hub**: [https://hub.docker.com/r/pzzt/atrium](https://hub.docker.com/r/pzzt/atrium)
 
 ---
 
