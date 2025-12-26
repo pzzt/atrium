@@ -2,8 +2,9 @@
 // CONFIGURAZIONE ATRIUM
 // ============================================
 
-// Versione dell'applicazione
-const VERSION = "1.5.0";
+// Versione dell'applicazione (generata automaticamente durante il build)
+// Fallback per sviluppo locale se version.js non è disponibile
+const VERSION = typeof window !== 'undefined' && window.APP_VERSION ? window.APP_VERSION : "dev";
 
 // Titolo dell'applicazione (vuoto = usa default dal i18n)
 const appTitle = "";

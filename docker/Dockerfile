@@ -3,6 +3,9 @@
 
 FROM nginx:alpine
 
+# Build argument for version (default: dev)
+ARG VERSION=dev
+
 # Install Python 3 and kubernetes library for k3s monitoring
 RUN apk add --no-cache python3 py3-pip && \
     pip3 install --no-cache-dir --break-system-packages kubernetes
@@ -17,6 +20,9 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Copy application files
 COPY app/ /usr/share/nginx/html/
+
+# Generate version.js with build version
+RUN echo "window.APP_VERSION = \"${VERSION}\";" > /usr/share/nginx/html/version.js
 
 # Ensure all files have correct permissions for nginx
 RUN chmod 644 /usr/share/nginx/html/*.js && \
