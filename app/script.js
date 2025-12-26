@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update app title from config or use i18n default
     updateAppTitle();
 
+    // Update footer version
+    updateFooterVersion();
+
     // Initialize search and keyboard shortcuts
     initializeSearchAndShortcuts();
 
@@ -41,6 +44,14 @@ function updateAppTitle() {
         titleElement.textContent = appConfig.appTitle;
     } else {
         titleElement.textContent = t('app.title');
+    }
+}
+
+// Update footer version
+function updateFooterVersion() {
+    const versionElement = document.getElementById('footerVersion');
+    if (versionElement && typeof VERSION !== 'undefined') {
+        versionElement.textContent = `v${VERSION}`;
     }
 }
 

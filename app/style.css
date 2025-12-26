@@ -388,6 +388,13 @@ body {
     opacity: 0.5;
 }
 
+.footer-version {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .title {

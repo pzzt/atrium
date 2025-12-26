@@ -2,6 +2,9 @@
 // CONFIGURAZIONE ATRIUM
 // ============================================
 
+// Versione dell'applicazione
+const VERSION = "1.5.0";
+
 // Titolo dell'applicazione (vuoto = usa default dal i18n)
 const appTitle = "";
 
