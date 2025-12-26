@@ -626,6 +626,7 @@ body {
     background: var(--bg-card);
     border-radius: 20px;
     padding: 25px;
+    margin-top: 50px;
     margin-bottom: 25px;
     box-shadow: var(--shadow);
     animation: fadeIn 0.5s ease;
