@@ -8,6 +8,28 @@
 
 ![Atrium Dashboard](https://github.com/user-attachments/assets/efd46fe5-8cb5-4699-a8a8-c215cbfc72d2)
 
+## 📑 Contents
+
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Architecture](#-architecture)
+- [Configuration](#️-configuration)
+- [System Monitor](#-system-monitor)
+- [K3s Cluster Monitoring](#️-k3s-cluster-monitoring)
+- [Multi-Language Support](#-multi-language-support)
+- [Customization](#-customization)
+- [Management](#-management)
+- [Supported Architectures](#-supported-architectures)
+- [Troubleshooting](#-troubleshooting)
+- [Backup & Restore](#-backup--restore)
+- [Security](#-security)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+- [Contributing](#-contributing)
+- [Support](#-support)
+- [Links](#-links)
+- [Acknowledgments](#-acknowledgments)
+
 ## ✨ Features
 
 - 🎨 **Modern Dark Theme** - Beautiful gradient UI with smooth animations
