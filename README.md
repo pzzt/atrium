@@ -333,15 +333,14 @@ docker restart atrium
 
 - [x] Multi-language support (EN, IT, DE)
 - [x] System monitoring (CPU, RAM, Network)
+- [x] K3s cluster monitoring
 - [x] Custom application title
 - [x] Docker volume persistence
+- [x] Import/Export configuration from UI
 - [ ] Optional authentication
-- [ ] Light/dark theme toggle
 - [ ] Pinned/favorite services
-- [ ] Import configuration from UI
 - [ ] Weather widget
 - [ ] Calendar widget
-- [ ] Service health checks
 
 ## 📄 License
 
