@@ -5,7 +5,7 @@ FROM nginx:alpine
 
 # Install Python 3 and kubernetes library for k3s monitoring
 RUN apk add --no-cache python3 py3-pip && \
-    pip3 install --no-cache-dir kubernetes
+    pip3 install --no-cache-dir --break-system-packages kubernetes
 
 # Create data directory and .kube directory for k3s config
 RUN mkdir -p /root/.kube /data && \
