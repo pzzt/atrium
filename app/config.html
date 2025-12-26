@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration - Atrium</title>
     <link rel="stylesheet" href="config-page.css">
+    <script src="themes.js"></script>
 </head>
 <body>
     <div class="config-container">
-        <!-- Header with language selector -->
+        <!-- Header -->
         <header class="config-header">
-            <select id="languageSelector" class="language-selector" title="Language">
-                <option value="en">🇺🇸 English</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="de">🇩🇪 Deutsch</option>
-            </select>
             <a href="index.html" class="back-button" data-i18n="config.back">← Back to Home</a>
             <h1 data-i18n="config.title">⚙️ Configuration</h1>
             <p data-i18n="config.subtitle">Manage your services and RSS feeds</p>
@@ -25,6 +21,7 @@
             <button class="tab-button active" data-tab="general" data-i18n="config.general">🔧 General</button>
             <button class="tab-button" data-tab="services" data-i18n="config.services">🚀 Services</button>
             <button class="tab-button" data-tab="news" data-i18n="config.news">📰 RSS Feeds</button>
+            <button class="tab-button" data-tab="nerd" data-i18n="config.nerd">🤓 Nerd</button>
         </div>
 
         <!-- Tab General -->
@@ -39,6 +36,21 @@
                         <label data-i18n="config.appTitle">Application Title</label>
                         <input type="text" id="appTitleInput" placeholder="Atrium">
                         <small data-i18n="config.appTitleHint">Leave empty to use the default title from translations</small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="config.theme">Theme</label>
+                        <select id="themeSelect">
+                            <option value="catppuccin-macchiato">Catppuccin - Macchiato</option>
+                            <option value="catppuccin-mocha">Catppuccin - Mocha</option>
+                            <option value="catppuccin-frappe">Catppuccin - Frappé</option>
+                            <option value="catppuccin-latte">Catppuccin - Latte</option>
+                            <option value="minimal-kiwi">Minimal Kiwi</option>
+                            <option value="one-dark-pro">One Dark Pro</option>
+                            <option value="nord-polar-night">Nord - Polar Night</option>
+                            <option value="nord-frost">Nord - Frost</option>
+                            <option value="nord-snow-storm">Nord - Snow Storm</option>
+                            <option value="nord-aurora">Nord - Aurora</option>
+                        </select>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="save-button" data-i18n="config.save">Save</button>
@@ -125,6 +137,29 @@
                     <div class="form-actions">
                         <button type="submit" class="save-button" data-i18n="config.save">Save</button>
                         <button type="button" class="cancel-button" id="cancelFeedBtn" data-i18n="config.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab Nerd -->
+        <div class="tab-content" id="nerd-tab">
+            <div class="section-header">
+                <h2 data-i18n="config.nerdSettings">Nerd Settings</h2>
+            </div>
+
+            <div class="general-form">
+                <form id="nerdForm">
+                    <div class="form-group">
+                        <label for="showSystemMonitorCheckbox" data-i18n="config.showSystemMonitor">Show System Monitor</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showSystemMonitorCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showSystemMonitorHint">Display CPU, memory, uptime and network statistics on homepage</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="save-button" data-i18n="config.save">Save</button>
                     </div>
                 </form>
             </div>

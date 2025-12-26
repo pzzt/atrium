@@ -5,6 +5,12 @@
 // Titolo dell'applicazione (vuoto = usa default dal i18n)
 const appTitle = "";
 
+// Theme selection
+const theme = "catppuccin-macchiato";  // default theme
+
+// System Monitor visibility (default: hidden)
+const showSystemMonitor = false;
+
 // Servizi da mostrare nella homepage
 const services = [
     // Aggiungi i tuoi servizi qui seguendo questo formato:

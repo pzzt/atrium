@@ -6,7 +6,9 @@
 let pageConfig = {
     appTitle: "",
     services: [],
-    newsFeeds: []
+    newsFeeds: [],
+    theme: "",
+    showSystemMonitor: false
 };
 
 // Track editing state
@@ -21,17 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize UI with loaded config
     initializeUI();
-
-    // Setup language selector
-    const langSelector = document.getElementById('languageSelector');
-    if (langSelector) {
-        langSelector.addEventListener('change', async (e) => {
-            await setLanguage(e.target.value);
-            // Re-render components with dynamic content
-            renderServices();
-            renderFeeds();
-        });
-    }
 });
 
 function updateAllConfigStrings() {
@@ -54,6 +45,8 @@ function updateAllConfigStrings() {
             btn.textContent = t('config.services');
         } else if (tab === 'news') {
             btn.textContent = t('config.news');
+        } else if (tab === 'nerd') {
+            btn.textContent = t('config.nerd');
         }
     });
 
@@ -61,9 +54,11 @@ function updateAllConfigStrings() {
     const generalH2 = document.querySelector('#general-tab h2');
     const servicesH2 = document.querySelector('#services-tab h2');
     const feedsH2 = document.querySelector('#news-tab h2');
+    const nerdH2 = document.querySelector('#nerd-tab h2');
     if (generalH2) generalH2.textContent = t('config.generalSettings');
     if (servicesH2) servicesH2.textContent = t('config.yourServices');
     if (feedsH2) feedsH2.textContent = t('config.rssFeeds');
+    if (nerdH2) nerdH2.textContent = t('config.nerdSettings');
 
     // Update buttons
     const addServiceBtn = document.getElementById('addServiceBtn');
@@ -94,7 +89,9 @@ async function loadConfig() {
         return {
             appTitle: config.appTitle || appTitle || "",
             services: config.services || services || [],
-            newsFeeds: config.newsFeeds || newsFeeds || []
+            newsFeeds: config.newsFeeds || newsFeeds || [],
+            theme: config.theme || theme || "catppuccin-macchiato",
+            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -102,7 +99,9 @@ async function loadConfig() {
         return {
             appTitle: appTitle || "",
             services: services || [],
-            newsFeeds: newsFeeds || []
+            newsFeeds: newsFeeds || [],
+            theme: theme || "catppuccin-macchiato",
+            showSystemMonitor: showSystemMonitor || false
         };
     }
 }
@@ -145,20 +144,60 @@ function initializeUI() {
     // Initialize General Settings Form
     const generalForm = document.getElementById('generalForm');
     const appTitleInput = document.getElementById('appTitleInput');
+    const themeSelect = document.getElementById('themeSelect');
 
-    // Load current app title
+    // Load current app title and theme
     appTitleInput.value = pageConfig.appTitle || "";
+    themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
+
+    // Apply current theme
+    if (pageConfig.theme) {
+        applyTheme(pageConfig.theme);
+    }
+
+    // Theme change handler - live preview
+    themeSelect.addEventListener('change', async (e) => {
+        pageConfig.theme = e.target.value;
+        applyTheme(pageConfig.theme);
+        await saveConfig(pageConfig);
+    });
 
     // Save general settings
     generalForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         pageConfig.appTitle = appTitleInput.value.trim();
+        pageConfig.theme = themeSelect.value;
         const success = await saveConfig(pageConfig);
 
         if (success) {
             // Show save confirmation
             const saveBtn = generalForm.querySelector('.save-button');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✓ Saved';
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+            }, 1500);
+        }
+    });
+
+    // Initialize Nerd Settings
+    const nerdForm = document.getElementById('nerdForm');
+    const showSystemMonitorCheckbox = document.getElementById('showSystemMonitorCheckbox');
+
+    // Load current system monitor visibility setting
+    showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+
+    // Form submit handler - save on button click
+    nerdForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        pageConfig.showSystemMonitor = showSystemMonitorCheckbox.checked;
+        const success = await saveConfig(pageConfig);
+
+        if (success) {
+            // Show save confirmation
+            const saveBtn = nerdForm.querySelector('.save-button');
             const originalText = saveBtn.textContent;
             saveBtn.textContent = '✓ Saved';
             setTimeout(() => {
@@ -274,6 +313,9 @@ function initializeUI() {
             renderServices();
             renderFeeds();
             appTitleInput.value = pageConfig.appTitle || "";
+            themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
+            showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+            applyTheme(pageConfig.theme);
             alert(t('config.resetDone'));
         } else {
             alert('Error resetting configuration. Please try again.');

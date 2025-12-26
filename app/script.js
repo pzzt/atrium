@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderServices();
             renderNews();
             updateSystemMonitorLabels();
+            updateSystemMonitorVisibility();
         });
     }
 });
@@ -81,6 +82,17 @@ function updateSystemMonitorLabels() {
     if (footerText) footerText.textContent = t('app.subtitle');
 }
 
+function updateSystemMonitorVisibility() {
+    const systemMonitor = document.getElementById('systemMonitor');
+    if (!systemMonitor) return;
+
+    if (appConfig.showSystemMonitor) {
+        systemMonitor.classList.remove('hidden');
+    } else {
+        systemMonitor.classList.add('hidden');
+    }
+}
+
 
 // ============================================
 // Caricamento Configurazione
@@ -94,7 +106,9 @@ async function loadConfiguration() {
         appConfig = {
             appTitle: config.appTitle || appTitle || "",
             services: config.services || services || [],
-            newsFeeds: config.newsFeeds || newsFeeds || []
+            newsFeeds: config.newsFeeds || newsFeeds || [],
+            theme: config.theme || theme || "catppuccin-macchiato",
+            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -102,12 +116,22 @@ async function loadConfiguration() {
         appConfig = {
             appTitle: appTitle || "",
             services: services || [],
-            newsFeeds: newsFeeds || []
+            newsFeeds: newsFeeds || [],
+            theme: theme || "catppuccin-macchiato",
+            showSystemMonitor: showSystemMonitor || false
         };
 
         // Show error notification to user
         showErrorNotification('Unable to load configuration. Check if the container is running properly.');
     }
+
+    // Apply theme
+    if (appConfig.theme && typeof applyTheme === 'function') {
+        applyTheme(appConfig.theme);
+    }
+
+    // Apply system monitor visibility
+    updateSystemMonitorVisibility();
 
     // Render services and news after loading config
     renderServices();
@@ -146,7 +170,9 @@ function showErrorNotification(message) {
 let appConfig = {
     appTitle: "",
     services: [],
-    newsFeeds: []
+    newsFeeds: [],
+    theme: "",
+    showSystemMonitor: false
 };
 
 

@@ -124,12 +124,7 @@ function updateLanguageSelector() {
 
     selector.innerHTML = AVAILABLE_LANGS.map(lang => {
         const isSelected = lang === currentLang;
-        const langNames = {
-            'en': '🇺🇸 English',
-            'it': '🇮🇹 Italiano',
-            'de': '🇩🇪 Deutsch'
-        };
-        return `<option value="${lang}" ${isSelected ? 'selected' : ''}>${langNames[lang]}</option>`;
+        return `<option value="${lang}" ${isSelected ? 'selected' : ''}>${lang.toUpperCase()}</option>`;
     }).join('');
 }
 

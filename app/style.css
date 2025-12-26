@@ -39,9 +39,10 @@ body {
 .top-controls {
     position: absolute;
     top: 0;
+    left: 0;
     right: 0;
     display: flex;
-    gap: 10px;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -108,9 +109,9 @@ body {
 }
 
 .title {
-    font-size: 2.5rem;
+    font-size: 5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #a8dadc 0%, #667eea 50%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -360,7 +361,7 @@ body {
 /* Footer */
 .footer {
     text-align: center;
-    padding: 20px 0;
+    padding: 60px 0 20px 0;
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
@@ -418,6 +419,10 @@ body {
 .system-monitor {
     margin-top: 50px;
     animation: fadeIn 0.8s ease-out;
+}
+
+.system-monitor.hidden {
+    display: none;
 }
 
 .system-title {

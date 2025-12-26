@@ -391,6 +391,27 @@ body {
     opacity: 0.7;
 }
 
+/* Checkbox Styling */
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.checkbox-label {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    user-select: none;
+}
+
 .form-group input::placeholder {
     color: var(--text-secondary);
 }
