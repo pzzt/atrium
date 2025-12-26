@@ -106,6 +106,122 @@ Atrium includes a real-time system monitor that displays:
 
 Data is fetched every 5 seconds from `/proc` filesystem (Linux only).
 
+## ☸️ K3s Cluster Monitoring
+
+Atrium includes K3s cluster monitoring with 5 independent toggleable sections:
+
+- **Nodes**: Cluster node status, roles, versions, and resource capacity
+- **Pods**: Total, running, pending, failed, and succeeded pod counts
+- **Deployments**: Total deployments with ready/unavailable statistics
+- **Services**: Service counts by type (ClusterIP, NodePort, LoadBalancer)
+- **Events**: Recent cluster events (warnings, normal events)
+
+### Enable K3s Monitoring
+
+1. Click the ⚙️ icon in the top-right corner
+2. Go to the **Nerd** tab
+3. Under "K3s Cluster Monitor", enable the sections you want to display
+
+Each section can be enabled independently, so you can choose exactly what cluster information to show on your dashboard.
+
+### Configure K3s Access
+
+Atrium supports two authentication methods:
+
+#### Option 1: Mount kubeconfig File (Recommended for External Access)
+
+Mount your kubeconfig file when starting the container:
+
+```bash
+docker run -d --name atrium \
+  -p 8080:80 \
+  -v atrium-data:/data \
+  -v ~/.kube/config:/root/.kube/config:ro \
+  --restart unless-stopped \
+  pzzt/atrium:latest
+```
+
+Or use the `KUBECONFIG` environment variable:
+
+```bash
+docker run -d --name atrium \
+  -p 8080:80 \
+  -v atrium-data:/data \
+  -v /path/to/kubeconfig:/config:ro \
+  -e KUBECONFIG=/config \
+  --restart unless-stopped \
+  pzzt/atrium:latest
+```
+
+> **Important**: The `:ro` flag makes the mount read-only for security.
+
+#### Option 2: In-Cluster Configuration (For Atrium Deployed in K3s)
+
+If you deploy Atrium inside your K3s cluster, it will automatically use the ServiceAccount token:
+
+1. Create a ServiceAccount for Atrium:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: atrium
+  namespace: default
+```
+
+2. Create a ClusterRoleBinding with read permissions:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: atrium
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: atrium
+  namespace: default
+```
+
+3. Deploy Atrium in your cluster (the container will automatically detect the in-cluster config)
+
+### Using Docker Compose
+
+Add the kubeconfig volume mount to your `docker-compose.yml`:
+
+```yaml
+services:
+  atrium:
+    image: pzzt/atrium:latest
+    container_name: atrium
+    ports:
+      - "8080:80"
+    volumes:
+      - atrium-data:/data
+      - ~/.kube/config:/root/.kube/config:ro
+    restart: unless-stopped
+```
+
+### Troubleshooting K3s Monitoring
+
+**"Unable to connect to K3s cluster" message appears:**
+- Verify your kubeconfig file is correctly mounted
+- Check that the kubeconfig has valid credentials
+- Ensure the container has network access to the K3s API server
+- Check container logs: `docker logs atrium`
+
+**No data showing in K3s sections:**
+- Verify the ServiceAccount has sufficient permissions (use `view` ClusterRole or higher)
+- Check if the K3s cluster is accessible from the container
+- Try testing kubectl access from inside the container: `docker exec -it atrium kubectl get nodes`
+
+**Only some sections display data:**
+- This is expected behavior if you've enabled only specific sections in Configuration → Nerd tab
+- Each K3s section (Nodes, Pods, Deployments, Services, Events) works independently
+
 ## 🌍 Multi-Language Support
 
 Atrium supports three languages:
