@@ -8,7 +8,11 @@ let pageConfig = {
     services: [],
     newsFeeds: [],
     theme: "",
-    showSystemMonitor: false,
+    showCPU: false,
+    showMemory: false,
+    showUptime: false,
+    showNetworkInterfaces: false,
+    showNetworkChart: false,
     showK3sNodes: false,
     showK3sPods: false,
     showK3sDeployments: false,
@@ -98,7 +102,11 @@ async function loadConfig() {
             services: config.services || services || [],
             newsFeeds: config.newsFeeds || newsFeeds || [],
             theme: config.theme || theme || "catppuccin-macchiato",
-            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false,
+            showCPU: config.showCPU || showCPU || false,
+            showMemory: config.showMemory || showMemory || false,
+            showUptime: config.showUptime || showUptime || false,
+            showNetworkInterfaces: config.showNetworkInterfaces || showNetworkInterfaces || false,
+            showNetworkChart: config.showNetworkChart || showNetworkChart || false,
             showK3sNodes: config.showK3sNodes || showK3sNodes || false,
             showK3sPods: config.showK3sPods || showK3sPods || false,
             showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
@@ -113,7 +121,11 @@ async function loadConfig() {
             services: services || [],
             newsFeeds: newsFeeds || [],
             theme: theme || "catppuccin-macchiato",
-            showSystemMonitor: showSystemMonitor || false,
+            showCPU: showCPU || false,
+            showMemory: showMemory || false,
+            showUptime: showUptime || false,
+            showNetworkInterfaces: showNetworkInterfaces || false,
+            showNetworkChart: showNetworkChart || false,
             showK3sNodes: showK3sNodes || false,
             showK3sPods: showK3sPods || false,
             showK3sDeployments: showK3sDeployments || false,
@@ -200,7 +212,11 @@ function initializeUI() {
 
     // Initialize Nerd Settings
     const nerdForm = document.getElementById('nerdForm');
-    const showSystemMonitorCheckbox = document.getElementById('showSystemMonitorCheckbox');
+    const showCPUCheckbox = document.getElementById('showCPUCheckbox');
+    const showMemoryCheckbox = document.getElementById('showMemoryCheckbox');
+    const showUptimeCheckbox = document.getElementById('showUptimeCheckbox');
+    const showNetworkInterfacesCheckbox = document.getElementById('showNetworkInterfacesCheckbox');
+    const showNetworkChartCheckbox = document.getElementById('showNetworkChartCheckbox');
     const showK3sNodesCheckbox = document.getElementById('showK3sNodesCheckbox');
     const showK3sPodsCheckbox = document.getElementById('showK3sPodsCheckbox');
     const showK3sDeploymentsCheckbox = document.getElementById('showK3sDeploymentsCheckbox');
@@ -208,7 +224,11 @@ function initializeUI() {
     const showK3sEventsCheckbox = document.getElementById('showK3sEventsCheckbox');
 
     // Load current settings
-    showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+    showCPUCheckbox.checked = pageConfig.showCPU || false;
+    showMemoryCheckbox.checked = pageConfig.showMemory || false;
+    showUptimeCheckbox.checked = pageConfig.showUptime || false;
+    showNetworkInterfacesCheckbox.checked = pageConfig.showNetworkInterfaces || false;
+    showNetworkChartCheckbox.checked = pageConfig.showNetworkChart || false;
     showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
     showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
     showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
@@ -219,7 +239,11 @@ function initializeUI() {
     nerdForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        pageConfig.showSystemMonitor = showSystemMonitorCheckbox.checked;
+        pageConfig.showCPU = showCPUCheckbox.checked;
+        pageConfig.showMemory = showMemoryCheckbox.checked;
+        pageConfig.showUptime = showUptimeCheckbox.checked;
+        pageConfig.showNetworkInterfaces = showNetworkInterfacesCheckbox.checked;
+        pageConfig.showNetworkChart = showNetworkChartCheckbox.checked;
         pageConfig.showK3sNodes = showK3sNodesCheckbox.checked;
         pageConfig.showK3sPods = showK3sPodsCheckbox.checked;
         pageConfig.showK3sDeployments = showK3sDeploymentsCheckbox.checked;
@@ -346,7 +370,11 @@ function initializeUI() {
             renderFeeds();
             appTitleInput.value = pageConfig.appTitle || "";
             themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
-            showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+            showCPUCheckbox.checked = pageConfig.showCPU || false;
+            showMemoryCheckbox.checked = pageConfig.showMemory || false;
+            showUptimeCheckbox.checked = pageConfig.showUptime || false;
+            showNetworkInterfacesCheckbox.checked = pageConfig.showNetworkInterfaces || false;
+            showNetworkChartCheckbox.checked = pageConfig.showNetworkChart || false;
             showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
             showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
             showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
@@ -397,7 +425,11 @@ function initializeUI() {
                 services: importedConfig.services || [],
                 newsFeeds: importedConfig.newsFeeds || [],
                 theme: importedConfig.theme || "catppuccin-macchiato",
-                showSystemMonitor: importedConfig.showSystemMonitor || false,
+                showCPU: importedConfig.showCPU || false,
+                showMemory: importedConfig.showMemory || false,
+                showUptime: importedConfig.showUptime || false,
+                showNetworkInterfaces: importedConfig.showNetworkInterfaces || false,
+                showNetworkChart: importedConfig.showNetworkChart || false,
                 showK3sNodes: importedConfig.showK3sNodes || false,
                 showK3sPods: importedConfig.showK3sPods || false,
                 showK3sDeployments: importedConfig.showK3sDeployments || false,
@@ -412,7 +444,11 @@ function initializeUI() {
                 // Update UI with imported config
                 appTitleInput.value = pageConfig.appTitle || "";
                 themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
-                showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+                showCPUCheckbox.checked = pageConfig.showCPU || false;
+                showMemoryCheckbox.checked = pageConfig.showMemory || false;
+                showUptimeCheckbox.checked = pageConfig.showUptime || false;
+                showNetworkInterfacesCheckbox.checked = pageConfig.showNetworkInterfaces || false;
+                showNetworkChartCheckbox.checked = pageConfig.showNetworkChart || false;
                 showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
                 showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
                 showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;

@@ -95,13 +95,48 @@ function updateSystemMonitorLabels() {
 }
 
 function updateSystemMonitorVisibility() {
-    const systemMonitor = document.getElementById('systemMonitor');
-    if (!systemMonitor) return;
+    // Check if any System Monitor component is enabled
+    const anySystemEnabled = appConfig.showCPU || appConfig.showMemory ||
+                            appConfig.showUptime || appConfig.showNetworkInterfaces ||
+                            appConfig.showNetworkChart;
 
-    if (appConfig.showSystemMonitor) {
-        systemMonitor.classList.remove('hidden');
-    } else {
-        systemMonitor.classList.add('hidden');
+    // Show/hide parent system-monitor section
+    const systemMonitor = document.getElementById('systemMonitor');
+    if (systemMonitor) {
+        if (anySystemEnabled) {
+            systemMonitor.classList.remove('hidden');
+        } else {
+            systemMonitor.classList.add('hidden');
+        }
+    }
+
+    // Update each component visibility independently
+    const components = [
+        { id: 'cpuCard', enabled: appConfig.showCPU },
+        { id: 'memoryCard', enabled: appConfig.showMemory },
+        { id: 'uptimeCard', enabled: appConfig.showUptime },
+        { id: 'networkStats', enabled: appConfig.showNetworkInterfaces }
+    ];
+
+    components.forEach(comp => {
+        const el = document.getElementById(comp.id);
+        if (el) {
+            if (comp.enabled) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+    });
+
+    // Network chart is special - it's inside networkStats
+    const networkChart = document.getElementById('networkChart');
+    if (networkChart) {
+        if (appConfig.showNetworkChart) {
+            networkChart.classList.remove('hidden');
+        } else {
+            networkChart.classList.add('hidden');
+        }
     }
 }
 
@@ -157,7 +192,11 @@ async function loadConfiguration() {
             services: config.services || services || [],
             newsFeeds: config.newsFeeds || newsFeeds || [],
             theme: config.theme || theme || "catppuccin-macchiato",
-            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false,
+            showCPU: config.showCPU || showCPU || false,
+            showMemory: config.showMemory || showMemory || false,
+            showUptime: config.showUptime || showUptime || false,
+            showNetworkInterfaces: config.showNetworkInterfaces || showNetworkInterfaces || false,
+            showNetworkChart: config.showNetworkChart || showNetworkChart || false,
             showK3sNodes: config.showK3sNodes || showK3sNodes || false,
             showK3sPods: config.showK3sPods || showK3sPods || false,
             showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
@@ -172,7 +211,11 @@ async function loadConfiguration() {
             services: services || [],
             newsFeeds: newsFeeds || [],
             theme: theme || "catppuccin-macchiato",
-            showSystemMonitor: showSystemMonitor || false,
+            showCPU: showCPU || false,
+            showMemory: showMemory || false,
+            showUptime: showUptime || false,
+            showNetworkInterfaces: showNetworkInterfaces || false,
+            showNetworkChart: showNetworkChart || false,
             showK3sNodes: showK3sNodes || false,
             showK3sPods: showK3sPods || false,
             showK3sDeployments: showK3sDeployments || false,
@@ -232,7 +275,11 @@ let appConfig = {
     services: [],
     newsFeeds: [],
     theme: "",
-    showSystemMonitor: false,
+    showCPU: false,
+    showMemory: false,
+    showUptime: false,
+    showNetworkInterfaces: false,
+    showNetworkChart: false,
     showK3sNodes: false,
     showK3sPods: false,
     showK3sDeployments: false,

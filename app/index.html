@@ -57,38 +57,40 @@
         <!-- Sezione System Monitor -->
         <section class="system-monitor" id="systemMonitor">
             <h2 class="system-title" data-i18n="system.title">System Monitor</h2>
-            <div class="system-stats" id="systemStats">
-                <div class="stat-card cpu-card">
-                    <div class="stat-icon">🖥️</div>
-                    <div class="stat-info">
-                        <div class="stat-label" data-i18n="system.cpu">CPU</div>
-                        <div class="stat-value" id="cpuValue">--%</div>
-                        <div class="stat-details" id="cpuDetails">Loading...</div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" id="cpuBar"></div>
-                    </div>
-                </div>
 
-                <div class="stat-card memory-card">
-                    <div class="stat-icon">🧠</div>
-                    <div class="stat-info">
-                        <div class="stat-label" data-i18n="system.memory">RAM</div>
-                        <div class="stat-value" id="memoryValue">--%</div>
-                        <div class="stat-details" id="memoryDetails">Loading...</div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" id="memoryBar"></div>
-                    </div>
+            <!-- CPU Card -->
+            <div class="stat-card cpu-card" id="cpuCard">
+                <div class="stat-icon">🖥️</div>
+                <div class="stat-info">
+                    <div class="stat-label" data-i18n="system.cpu">CPU</div>
+                    <div class="stat-value" id="cpuValue">--%</div>
+                    <div class="stat-details" id="cpuDetails">Loading...</div>
                 </div>
+                <div class="stat-bar">
+                    <div class="stat-bar-fill" id="cpuBar"></div>
+                </div>
+            </div>
 
-                <div class="stat-card uptime-card">
-                    <div class="stat-icon">⏱️</div>
-                    <div class="stat-info">
-                        <div class="stat-label" data-i18n="system.uptime">Uptime</div>
-                        <div class="stat-value" id="uptimeValue">--</div>
-                        <div class="stat-details"><span data-i18n="system.load">Load</span>: <span id="loadValue">--</span></div>
-                    </div>
+            <!-- Memory Card -->
+            <div class="stat-card memory-card" id="memoryCard">
+                <div class="stat-icon">🧠</div>
+                <div class="stat-info">
+                    <div class="stat-label" data-i18n="system.memory">RAM</div>
+                    <div class="stat-value" id="memoryValue">--%</div>
+                    <div class="stat-details" id="memoryDetails">Loading...</div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-bar-fill" id="memoryBar"></div>
+                </div>
+            </div>
+
+            <!-- Uptime Card -->
+            <div class="stat-card uptime-card" id="uptimeCard">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-info">
+                    <div class="stat-label" data-i18n="system.uptime">Uptime</div>
+                    <div class="stat-value" id="uptimeValue">--</div>
+                    <div class="stat-details"><span data-i18n="system.load">Load</span>: <span id="loadValue">--</span></div>
                 </div>
             </div>
 

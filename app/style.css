@@ -432,6 +432,11 @@ body {
     display: none;
 }
 
+/* Hidden class for individual System Monitor components */
+.system-monitor .hidden {
+    display: none;
+}
+
 .system-title {
     font-size: 1.8rem;
     font-weight: 600;

@@ -11,8 +11,12 @@ const appTitle = "";
 // Theme selection
 const theme = "catppuccin-macchiato";  // default theme
 
-// System Monitor visibility (default: hidden)
-const showSystemMonitor = false;
+// System Monitor visibility settings (default: all hidden)
+const showCPU = false;
+const showMemory = false;
+const showUptime = false;
+const showNetworkInterfaces = false;
+const showNetworkChart = false;
 
 // K3s Monitor visibility settings (default: all hidden)
 const showK3sNodes = false;
