@@ -539,6 +539,114 @@ function updateNetworkStats(networks) {
         `;
         networkList.appendChild(item);
     });
+
+    // Update network chart
+    updateNetworkChart(networks);
+}
+
+// Network traffic chart
+const networkChartData = {
+    rx: [],
+    tx: [],
+    maxPoints: 60  // 5 minutes of data (60 points × 5 seconds)
+};
+
+function updateNetworkChart(networks) {
+    const canvas = document.getElementById('networkCanvas');
+    if (!canvas) return;
+
+    // Calculate total RX and TX across all interfaces (in MB)
+    let totalRx = 0;
+    let totalTx = 0;
+
+    networks.forEach(net => {
+        if (!net.error) {
+            totalRx += parseFloat(net.rx_mb) || 0;
+            totalTx += parseFloat(net.tx_mb) || 0;
+        }
+    });
+
+    // Add new data points
+    networkChartData.rx.push(totalRx);
+    networkChartData.tx.push(totalTx);
+
+    // Keep only the last maxPoints
+    if (networkChartData.rx.length > networkChartData.maxPoints) {
+        networkChartData.rx.shift();
+        networkChartData.tx.shift();
+    }
+
+    // Draw the chart
+    drawNetworkChart(canvas);
+}
+
+function drawNetworkChart(canvas) {
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    const width = rect.width;
+    const height = rect.height;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    if (networkChartData.rx.length < 2) return;
+
+    // Find max value for scaling
+    const maxValue = Math.max(
+        ...networkChartData.rx,
+        ...networkChartData.tx,
+        1  // Minimum to avoid division by zero
+    );
+
+    const padding = 10;
+    const chartWidth = width - padding * 2;
+    const chartHeight = height - padding * 2;
+
+    // Draw grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = padding + (chartHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+    }
+
+    // Function to draw a line
+    function drawLine(data, color) {
+        if (data.length < 2) return;
+
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+
+        data.forEach((value, index) => {
+            const x = padding + (chartWidth / (networkChartData.maxPoints - 1)) * index;
+            const y = padding + chartHeight - (value / maxValue) * chartHeight;
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+
+        ctx.stroke();
+    }
+
+    // Draw RX line (download) - cyan color
+    drawLine(networkChartData.rx, '#4ecdc4');
+
+    // Draw TX line (upload) - magenta color
+    drawLine(networkChartData.tx, '#ff6b6b');
 }
 
 async function updateSystemMonitor() {
