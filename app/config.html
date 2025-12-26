@@ -167,6 +167,56 @@
                         </div>
                         <small data-i18n="config.showSystemMonitorHint">Display CPU, memory, uptime and network statistics on homepage</small>
                     </div>
+
+                    <div class="form-group">
+                        <label style="color: var(--accent); font-weight: 600; font-size: 1.1rem; margin-top: 10px; display: block;">K3s Cluster Monitor</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="showK3sNodesCheckbox" data-i18n="config.showK3sNodes">Show Nodes</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showK3sNodesCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showK3sNodesHint">Display k3s cluster nodes status and resources</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="showK3sPodsCheckbox" data-i18n="config.showK3sPods">Show Pods</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showK3sPodsCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showK3sPodsHint">Display pod counts by status (Running, Pending, Failed)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="showK3sDeploymentsCheckbox" data-i18n="config.showK3sDeployments">Show Deployments</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showK3sDeploymentsCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showK3sDeploymentsHint">Display deployment statistics</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="showK3sServicesCheckbox" data-i18n="config.showK3sServices">Show Services</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showK3sServicesCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showK3sServicesHint">Display service counts by type</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="showK3sEventsCheckbox" data-i18n="config.showK3sEvents">Show Events</label>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showK3sEventsCheckbox">
+                            <span class="checkbox-label">Enable</span>
+                        </div>
+                        <small data-i18n="config.showK3sEventsHint">Display recent cluster events</small>
+                    </div>
+
                     <div class="form-actions">
                         <button type="submit" class="save-button" data-i18n="config.save">Save</button>
                     </div>

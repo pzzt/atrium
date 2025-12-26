@@ -3,11 +3,12 @@
 
 FROM nginx:alpine
 
-# Install Python 3 per l'API delle statistiche
-RUN apk add --no-cache python3
+# Install Python 3 and kubernetes library for k3s monitoring
+RUN apk add --no-cache python3 py3-pip && \
+    pip3 install --no-cache-dir kubernetes
 
-# Create data directory with proper permissions
-RUN mkdir -p /data && \
+# Create data directory and .kube directory for k3s config
+RUN mkdir -p /root/.kube /data && \
     chown -R nginx:nginx /data && \
     chmod 755 /data
 

@@ -8,7 +8,12 @@ let pageConfig = {
     services: [],
     newsFeeds: [],
     theme: "",
-    showSystemMonitor: false
+    showSystemMonitor: false,
+    showK3sNodes: false,
+    showK3sPods: false,
+    showK3sDeployments: false,
+    showK3sServices: false,
+    showK3sEvents: false
 };
 
 // Track editing state
@@ -93,7 +98,12 @@ async function loadConfig() {
             services: config.services || services || [],
             newsFeeds: config.newsFeeds || newsFeeds || [],
             theme: config.theme || theme || "catppuccin-macchiato",
-            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false
+            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false,
+            showK3sNodes: config.showK3sNodes || showK3sNodes || false,
+            showK3sPods: config.showK3sPods || showK3sPods || false,
+            showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
+            showK3sServices: config.showK3sServices || showK3sServices || false,
+            showK3sEvents: config.showK3sEvents || showK3sEvents || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -103,7 +113,12 @@ async function loadConfig() {
             services: services || [],
             newsFeeds: newsFeeds || [],
             theme: theme || "catppuccin-macchiato",
-            showSystemMonitor: showSystemMonitor || false
+            showSystemMonitor: showSystemMonitor || false,
+            showK3sNodes: showK3sNodes || false,
+            showK3sPods: showK3sPods || false,
+            showK3sDeployments: showK3sDeployments || false,
+            showK3sServices: showK3sServices || false,
+            showK3sEvents: showK3sEvents || false
         };
     }
 }
@@ -186,15 +201,30 @@ function initializeUI() {
     // Initialize Nerd Settings
     const nerdForm = document.getElementById('nerdForm');
     const showSystemMonitorCheckbox = document.getElementById('showSystemMonitorCheckbox');
+    const showK3sNodesCheckbox = document.getElementById('showK3sNodesCheckbox');
+    const showK3sPodsCheckbox = document.getElementById('showK3sPodsCheckbox');
+    const showK3sDeploymentsCheckbox = document.getElementById('showK3sDeploymentsCheckbox');
+    const showK3sServicesCheckbox = document.getElementById('showK3sServicesCheckbox');
+    const showK3sEventsCheckbox = document.getElementById('showK3sEventsCheckbox');
 
-    // Load current system monitor visibility setting
+    // Load current settings
     showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+    showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
+    showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
+    showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
+    showK3sServicesCheckbox.checked = pageConfig.showK3sServices || false;
+    showK3sEventsCheckbox.checked = pageConfig.showK3sEvents || false;
 
     // Form submit handler - save on button click
     nerdForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         pageConfig.showSystemMonitor = showSystemMonitorCheckbox.checked;
+        pageConfig.showK3sNodes = showK3sNodesCheckbox.checked;
+        pageConfig.showK3sPods = showK3sPodsCheckbox.checked;
+        pageConfig.showK3sDeployments = showK3sDeploymentsCheckbox.checked;
+        pageConfig.showK3sServices = showK3sServicesCheckbox.checked;
+        pageConfig.showK3sEvents = showK3sEventsCheckbox.checked;
         const success = await saveConfig(pageConfig);
 
         if (success) {
@@ -317,6 +347,11 @@ function initializeUI() {
             appTitleInput.value = pageConfig.appTitle || "";
             themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
             showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+            showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
+            showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
+            showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
+            showK3sServicesCheckbox.checked = pageConfig.showK3sServices || false;
+            showK3sEventsCheckbox.checked = pageConfig.showK3sEvents || false;
             applyTheme(pageConfig.theme);
             alert(t('config.resetDone'));
         } else {
@@ -362,7 +397,12 @@ function initializeUI() {
                 services: importedConfig.services || [],
                 newsFeeds: importedConfig.newsFeeds || [],
                 theme: importedConfig.theme || "catppuccin-macchiato",
-                showSystemMonitor: importedConfig.showSystemMonitor || false
+                showSystemMonitor: importedConfig.showSystemMonitor || false,
+                showK3sNodes: importedConfig.showK3sNodes || false,
+                showK3sPods: importedConfig.showK3sPods || false,
+                showK3sDeployments: importedConfig.showK3sDeployments || false,
+                showK3sServices: importedConfig.showK3sServices || false,
+                showK3sEvents: importedConfig.showK3sEvents || false
             };
 
             // Save imported configuration
@@ -373,6 +413,11 @@ function initializeUI() {
                 appTitleInput.value = pageConfig.appTitle || "";
                 themeSelect.value = pageConfig.theme || "catppuccin-macchiato";
                 showSystemMonitorCheckbox.checked = pageConfig.showSystemMonitor || false;
+                showK3sNodesCheckbox.checked = pageConfig.showK3sNodes || false;
+                showK3sPodsCheckbox.checked = pageConfig.showK3sPods || false;
+                showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
+                showK3sServicesCheckbox.checked = pageConfig.showK3sServices || false;
+                showK3sEventsCheckbox.checked = pageConfig.showK3sEvents || false;
                 applyTheme(pageConfig.theme);
 
                 // Re-render services and feeds

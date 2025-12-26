@@ -10,6 +10,13 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 import os
 
+# Try to import kubernetes library for k3s monitoring
+try:
+    from kubernetes import client, config
+    KUBERNETES_AVAILABLE = True
+except ImportError:
+    KUBERNETES_AVAILABLE = False
+
 CONFIG_PATH = '/data/config.json'
 
 class StatsHandler(BaseHTTPRequestHandler):
@@ -38,6 +45,8 @@ class StatsHandler(BaseHTTPRequestHandler):
             response = {'network': get_network_stats()}
         elif path == '/api/config':
             response = get_config()
+        elif path == '/api/k3s':
+            response = get_k3s_stats()
         else:
             response = {'error': 'Not found'}
 
@@ -265,6 +274,100 @@ def get_load_average():
             return [float(x) for x in loadavg]
     except:
         return [0, 0, 0]
+
+def get_k3s_stats():
+    """Get k3s cluster statistics if available"""
+    if not KUBERNETES_AVAILABLE:
+        return {'error': 'Kubernetes library not available'}
+
+    try:
+        # Try in-cluster config first
+        try:
+            config.load_incluster_config()
+        except config.ConfigException:
+            # Fallback to kubeconfig
+            kubeconfig_path = os.getenv('KUBECONFIG', '/root/.kube/config')
+            if not os.path.exists(kubeconfig_path):
+                return {'error': 'No kubernetes configuration found'}
+            config.load_kube_config(config_file=kubeconfig_path)
+
+        v1 = client.CoreV1Api()
+        apps_v1 = client.AppsV1Api()
+
+        # Get nodes
+        nodes = v1.list_node()
+        nodes_data = []
+        for node in nodes.items:
+            nodes_data.append({
+                'name': node.metadata.name,
+                'status': 'Ready' if any(condition.type == 'Ready' and condition.status == 'True' for condition in node.status.conditions) else 'NotReady',
+                'roles': node.metadata.labels.get('kubernetes.io/role', ''),
+                'version': node.status.node_info.kubelet_version,
+                'capacity': {
+                    'cpu': node.status.capacity.get('cpu'),
+                    'memory': node.status.capacity.get('memory'),
+                    'pods': node.status.capacity.get('pods')
+                }
+            })
+
+        # Get pods
+        pods = v1.list_pod_for_all_namespaces()
+        pods_data = {
+            'total': len(pods.items),
+            'running': sum(1 for p in pods.items if p.status.phase == 'Running'),
+            'pending': sum(1 for p in pods.items if p.status.phase == 'Pending'),
+            'failed': sum(1 for p in pods.items if p.status.phase == 'Failed'),
+            'succeeded': sum(1 for p in pods.items if p.status.phase == 'Succeeded')
+        }
+
+        # Get deployments
+        deployments = apps_v1.list_deployment_for_all_namespaces()
+        deployments_data = {
+            'total': len(deployments.items),
+            'ready': sum(1 for d in deployments.items if d.status.ready_replicas == d.spec.replicas),
+            'unavailable': sum(1 for d in deployments.items if d.status.unavailable_replicas and d.status.unavailable_replicas > 0)
+        }
+
+        # Get services
+        services = v1.list_service_for_all_namespaces()
+        services_data = {
+            'total': len(services.items),
+            'cluster_ip': sum(1 for s in services.items if s.spec.type == 'ClusterIP'),
+            'node_port': sum(1 for s in services.items if s.spec.type == 'NodePort'),
+            'load_balancer': sum(1 for s in services.items if s.spec.type == 'LoadBalancer')
+        }
+
+        # Get recent events (last hour)
+        from datetime import datetime, timedelta
+        events = v1.list_event_for_all_namespaces()
+        recent_events = []
+        cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1) if events.items else None
+
+        for event in events.items[:20]:  # Last 20 events
+            if cutoff and event.last_timestamp < cutoff:
+                continue
+            recent_events.append({
+                'type': event.type,  # Normal, Warning
+                'reason': event.reason,
+                'message': event.message,
+                'namespace': event.metadata.namespace,
+                'involved_object': {
+                    'kind': event.involved_object.kind,
+                    'name': event.involved_object.name
+                },
+                'timestamp': event.last_timestamp.isoformat() if event.last_timestamp else None
+            })
+
+        return {
+            'nodes': nodes_data,
+            'pods': pods_data,
+            'deployments': deployments_data,
+            'services': services_data,
+            'events': recent_events[:10]  # Last 10 events
+        }
+
+    except Exception as e:
+        return {'error': str(e)}
 
 def run_server(port=8001):
     """Start HTTP server"""

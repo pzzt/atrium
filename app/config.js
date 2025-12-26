@@ -11,6 +11,13 @@ const theme = "catppuccin-macchiato";  // default theme
 // System Monitor visibility (default: hidden)
 const showSystemMonitor = false;
 
+// K3s Monitor visibility settings (default: all hidden)
+const showK3sNodes = false;
+const showK3sPods = false;
+const showK3sDeployments = false;
+const showK3sServices = false;
+const showK3sEvents = false;
+
 // Servizi da mostrare nella homepage
 const services = [
     // Aggiungi i tuoi servizi qui seguendo questo formato:
