@@ -94,6 +94,7 @@ site/
 *.plan.md
 .claude-plan/
 CLAUDE.md
+SESSION_NOTES.md
 
 # --- User downloaded configs ---
 *.json
