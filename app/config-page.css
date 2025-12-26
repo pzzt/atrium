@@ -216,6 +216,65 @@ body {
     transform: scale(1.05);
 }
 
+.edit-button {
+    padding: 8px 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+    transform: scale(1.05);
+    background: var(--accent-hover);
+}
+
+/* Actions Button Groups */
+.service-actions,
+.feed-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Reorder Buttons */
+.reorder-button {
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reorder-button:hover:not(.disabled) {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+.reorder-button.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--text-secondary);
+}
+
+.reorder-button:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 /* Services List */
 .services-list,
 .feeds-list {
@@ -234,6 +293,7 @@ body {
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
+    gap: 15px;
 }
 
 .service-item:hover,
@@ -419,6 +479,13 @@ body {
 
     .service-icon-preview {
         margin-right: 0;
+    }
+
+    /* Mobile actions layout */
+    .service-actions,
+    .feed-actions {
+        justify-content: flex-end;
+        width: 100%;
     }
 
     .global-actions {

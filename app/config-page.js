@@ -9,6 +9,10 @@ let pageConfig = {
     newsFeeds: []
 };
 
+// Track editing state
+let editingServiceIndex = -1;
+let editingFeedIndex = -1;
+
 document.addEventListener('DOMContentLoaded', async () => {
     await initI18N();
 
@@ -178,12 +182,14 @@ function initializeUI() {
         serviceForm.style.display = 'none';
         addServiceBtn.style.display = 'block';
         newServiceForm.reset();
+        editingServiceIndex = -1; // Reset editing state
+        document.querySelector('#serviceForm h3').textContent = t('config.newService');
     });
 
     newServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const newService = {
+        const serviceData = {
             name: document.getElementById('serviceName').value,
             url: document.getElementById('serviceUrl').value,
             description: document.getElementById('serviceDesc').value || '',
@@ -191,15 +197,23 @@ function initializeUI() {
             color: document.getElementById('serviceColor').value
         };
 
-        pageConfig.services.push(newService);
-        await saveConfig(pageConfig);
+        if (editingServiceIndex >= 0) {
+            // Update existing service
+            pageConfig.services[editingServiceIndex] = serviceData;
+            editingServiceIndex = -1; // Reset editing state
+        } else {
+            // Add new service
+            pageConfig.services.push(serviceData);
+        }
 
+        await saveConfig(pageConfig);
         renderServices();
 
-        // Reset form
+        // Reset form and title
         serviceForm.style.display = 'none';
         addServiceBtn.style.display = 'block';
         newServiceForm.reset();
+        document.querySelector('#serviceForm h3').textContent = t('config.newService');
     });
 
     // Initialize Add Feed handlers
@@ -217,25 +231,35 @@ function initializeUI() {
         feedForm.style.display = 'none';
         addFeedBtn.style.display = 'block';
         newFeedForm.reset();
+        editingFeedIndex = -1; // Reset editing state
+        document.querySelector('#feedForm h3').textContent = t('config.newFeed');
     });
 
     newFeedForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const newFeed = {
+        const feedData = {
             name: document.getElementById('feedName').value,
             url: document.getElementById('feedUrl').value
         };
 
-        pageConfig.newsFeeds.push(newFeed);
-        await saveConfig(pageConfig);
+        if (editingFeedIndex >= 0) {
+            // Update existing feed
+            pageConfig.newsFeeds[editingFeedIndex] = feedData;
+            editingFeedIndex = -1; // Reset editing state
+        } else {
+            // Add new feed
+            pageConfig.newsFeeds.push(feedData);
+        }
 
+        await saveConfig(pageConfig);
         renderFeeds();
 
-        // Reset form
+        // Reset form and title
         feedForm.style.display = 'none';
         addFeedBtn.style.display = 'block';
         newFeedForm.reset();
+        document.querySelector('#feedForm h3').textContent = t('config.newFeed');
     });
 
     // Initialize Reset button
@@ -295,6 +319,15 @@ function renderServices() {
     pageConfig.services.forEach((service, index) => {
         const item = document.createElement('div');
         item.className = 'service-item';
+
+        // Determine button states
+        const isFirst = index === 0;
+        const isLast = index === pageConfig.services.length - 1;
+        const totalItems = pageConfig.services.length;
+
+        // Only show reorder buttons if there's more than 1 item
+        const showReorderButtons = totalItems > 1;
+
         item.innerHTML = `
             <div class="service-left">
                 <div class="service-icon-preview">${service.icon}</div>
@@ -304,7 +337,24 @@ function renderServices() {
                     ${service.description ? `<div class="service-desc">${service.description}</div>` : ''}
                 </div>
             </div>
-            <button class="delete-button" onclick="deleteService(${index})">${t('config.delete')}</button>
+            <div class="service-actions">
+                ${showReorderButtons ? `
+                    <button class="reorder-button reorder-up ${isFirst ? 'disabled' : ''}"
+                            onclick="moveServiceUp(${index})"
+                            ${isFirst ? 'disabled' : ''}
+                            title="${t('config.moveUp')}">
+                        ${t('config.moveUp')}
+                    </button>
+                    <button class="reorder-button reorder-down ${isLast ? 'disabled' : ''}"
+                            onclick="moveServiceDown(${index})"
+                            ${isLast ? 'disabled' : ''}
+                            title="${t('config.moveDown')}">
+                        ${t('config.moveDown')}
+                    </button>
+                ` : ''}
+                <button class="edit-button" onclick="editService(${index})">${t('config.edit')}</button>
+                <button class="delete-button" onclick="deleteService(${index})">${t('config.delete')}</button>
+            </div>
         `;
         servicesList.appendChild(item);
     });
@@ -332,12 +382,38 @@ function renderFeeds() {
     pageConfig.newsFeeds.forEach((feed, index) => {
         const item = document.createElement('div');
         item.className = 'feed-item';
+
+        // Determine button states
+        const isFirst = index === 0;
+        const isLast = index === pageConfig.newsFeeds.length - 1;
+        const totalItems = pageConfig.newsFeeds.length;
+
+        // Only show reorder buttons if there's more than 1 item
+        const showReorderButtons = totalItems > 1;
+
         item.innerHTML = `
             <div class="feed-info">
                 <div class="feed-name">${feed.name}</div>
                 <div class="feed-url">${feed.url}</div>
             </div>
-            <button class="delete-button" onclick="deleteFeed(${index})">${t('config.delete')}</button>
+            <div class="feed-actions">
+                ${showReorderButtons ? `
+                    <button class="reorder-button reorder-up ${isFirst ? 'disabled' : ''}"
+                            onclick="moveFeedUp(${index})"
+                            ${isFirst ? 'disabled' : ''}
+                            title="${t('config.moveUp')}">
+                        ${t('config.moveUp')}
+                    </button>
+                    <button class="reorder-button reorder-down ${isLast ? 'disabled' : ''}"
+                            onclick="moveFeedDown(${index})"
+                            ${isLast ? 'disabled' : ''}
+                            title="${t('config.moveDown')}">
+                        ${t('config.moveDown')}
+                    </button>
+                ` : ''}
+                <button class="edit-button" onclick="editFeed(${index})">${t('config.edit')}</button>
+                <button class="delete-button" onclick="deleteFeed(${index})">${t('config.delete')}</button>
+            </div>
         `;
         feedsList.appendChild(item);
     });
@@ -358,4 +434,93 @@ window.deleteFeed = async function(index) {
     pageConfig.newsFeeds.splice(index, 1);
     await saveConfig(pageConfig);
     renderFeeds();
+};
+
+// ============================================
+// Reorder Functions
+// ============================================
+
+window.moveServiceUp = async function(index) {
+    if (index === 0) return; // Already at top
+
+    // Swap with previous element
+    [pageConfig.services[index - 1], pageConfig.services[index]] =
+    [pageConfig.services[index], pageConfig.services[index - 1]];
+
+    await saveConfig(pageConfig);
+    renderServices();
+};
+
+window.moveServiceDown = async function(index) {
+    if (index === pageConfig.services.length - 1) return; // Already at bottom
+
+    // Swap with next element
+    [pageConfig.services[index], pageConfig.services[index + 1]] =
+    [pageConfig.services[index + 1], pageConfig.services[index]];
+
+    await saveConfig(pageConfig);
+    renderServices();
+};
+
+window.moveFeedUp = async function(index) {
+    if (index === 0) return; // Already at top
+
+    // Swap with previous element
+    [pageConfig.newsFeeds[index - 1], pageConfig.newsFeeds[index]] =
+    [pageConfig.newsFeeds[index], pageConfig.newsFeeds[index - 1]];
+
+    await saveConfig(pageConfig);
+    renderFeeds();
+};
+
+window.moveFeedDown = async function(index) {
+    if (index === pageConfig.newsFeeds.length - 1) return; // Already at bottom
+
+    // Swap with next element
+    [pageConfig.newsFeeds[index], pageConfig.newsFeeds[index + 1]] =
+    [pageConfig.newsFeeds[index + 1], pageConfig.newsFeeds[index]];
+
+    await saveConfig(pageConfig);
+    renderFeeds();
+};
+
+// ============================================
+// Edit Functions
+// ============================================
+
+// Edit service - populate form with existing data
+window.editService = function(index) {
+    const service = pageConfig.services[index];
+    editingServiceIndex = index;
+
+    // Populate form
+    document.getElementById('serviceName').value = service.name;
+    document.getElementById('serviceUrl').value = service.url;
+    document.getElementById('serviceDesc').value = service.description || '';
+    document.getElementById('serviceIcon').value = service.icon || '📁';
+    document.getElementById('serviceColor').value = service.color;
+
+    // Update form title
+    document.querySelector('#serviceForm h3').textContent = t('config.editService');
+
+    // Show form
+    document.getElementById('serviceForm').style.display = 'block';
+    document.getElementById('addServiceBtn').style.display = 'none';
+};
+
+// Edit feed - populate form with existing data
+window.editFeed = function(index) {
+    const feed = pageConfig.newsFeeds[index];
+    editingFeedIndex = index;
+
+    // Populate form
+    document.getElementById('feedName').value = feed.name;
+    document.getElementById('feedUrl').value = feed.url;
+
+    // Update form title
+    document.querySelector('#feedForm h3').textContent = t('config.editFeed');
+
+    // Show form
+    document.getElementById('feedForm').style.display = 'block';
+    document.getElementById('addFeedBtn').style.display = 'none';
 };

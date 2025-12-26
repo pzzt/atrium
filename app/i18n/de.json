@@ -61,6 +61,11 @@
     "config.yourServices": "Ihre Dienste",
     "config.rssFeeds": "RSS-Feeds",
     "config.emptyServices": "Keine Dienste konfiguriert",
-    "config.emptyFeeds": "Keine RSS-Feeds konfiguriert"
+    "config.emptyFeeds": "Keine RSS-Feeds konfiguriert",
+    "config.moveUp": "↑",
+    "config.moveDown": "↓",
+    "config.edit": "Bearbeiten",
+    "config.editService": "Dienst bearbeiten",
+    "config.editFeed": "RSS-Feed bearbeiten"
   }
 }
