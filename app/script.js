@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderNews();
             updateSystemMonitorLabels();
             updateSystemMonitorVisibility();
+            updateK3sMonitorVisibility();
         });
     }
 });
@@ -93,6 +94,28 @@ function updateSystemMonitorVisibility() {
     }
 }
 
+function updateK3sMonitorVisibility() {
+    // Update each K3s section visibility independently
+    const sections = [
+        { id: 'k3sNodesSection', enabled: appConfig.showK3sNodes },
+        { id: 'k3sPodsSection', enabled: appConfig.showK3sPods },
+        { id: 'k3sDeploymentsSection', enabled: appConfig.showK3sDeployments },
+        { id: 'k3sServicesSection', enabled: appConfig.showK3sServices },
+        { id: 'k3sEventsSection', enabled: appConfig.showK3sEvents }
+    ];
+
+    sections.forEach(section => {
+        const el = document.getElementById(section.id);
+        if (el) {
+            if (section.enabled) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+    });
+}
+
 
 // ============================================
 // Caricamento Configurazione
@@ -108,7 +131,12 @@ async function loadConfiguration() {
             services: config.services || services || [],
             newsFeeds: config.newsFeeds || newsFeeds || [],
             theme: config.theme || theme || "catppuccin-macchiato",
-            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false
+            showSystemMonitor: config.showSystemMonitor || showSystemMonitor || false,
+            showK3sNodes: config.showK3sNodes || showK3sNodes || false,
+            showK3sPods: config.showK3sPods || showK3sPods || false,
+            showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
+            showK3sServices: config.showK3sServices || showK3sServices || false,
+            showK3sEvents: config.showK3sEvents || showK3sEvents || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -118,7 +146,12 @@ async function loadConfiguration() {
             services: services || [],
             newsFeeds: newsFeeds || [],
             theme: theme || "catppuccin-macchiato",
-            showSystemMonitor: showSystemMonitor || false
+            showSystemMonitor: showSystemMonitor || false,
+            showK3sNodes: showK3sNodes || false,
+            showK3sPods: showK3sPods || false,
+            showK3sDeployments: showK3sDeployments || false,
+            showK3sServices: showK3sServices || false,
+            showK3sEvents: showK3sEvents || false
         };
 
         // Show error notification to user
@@ -132,6 +165,7 @@ async function loadConfiguration() {
 
     // Apply system monitor visibility
     updateSystemMonitorVisibility();
+    updateK3sMonitorVisibility();
 
     // Render services and news after loading config
     renderServices();
@@ -172,7 +206,12 @@ let appConfig = {
     services: [],
     newsFeeds: [],
     theme: "",
-    showSystemMonitor: false
+    showSystemMonitor: false,
+    showK3sNodes: false,
+    showK3sPods: false,
+    showK3sDeployments: false,
+    showK3sServices: false,
+    showK3sEvents: false
 };
 
 
@@ -496,6 +535,11 @@ async function updateSystemMonitor() {
         updateUptimeStats(stats);
         updateNetworkStats(stats.network);
     }
+
+    // Update K3s stats if any section is enabled
+    if (appConfig.showK3sNodes || appConfig.showK3sPods || appConfig.showK3sDeployments || appConfig.showK3sServices || appConfig.showK3sEvents) {
+        await updateK3sStats();
+    }
 }
 
 // Initialize system monitor
@@ -510,3 +554,156 @@ async function initSystemMonitor() {
 // Start system monitor when page loads
 initSystemMonitor();
 
+
+
+// ============================================
+// K3s Monitor Functions  
+// ============================================
+
+async function updateK3sStats() {
+    try {
+        const response = await fetch('/api/k3s');
+        if (!response.ok) {
+            showK3sError('K3s API not available');
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+            showK3sError(data.error);
+            return;
+        }
+
+        if (appConfig.showK3sNodes) updateK3sNodes(data.nodes || []);
+        if (appConfig.showK3sPods) updateK3sPods(data.pods || {});
+        if (appConfig.showK3sDeployments) updateK3sDeployments(data.deployments || {});
+        if (appConfig.showK3sServices) updateK3sServices(data.services || {});
+        if (appConfig.showK3sEvents) updateK3sEvents(data.events || []);
+        hideK3sError();
+
+    } catch (error) {
+        console.error('Error fetching K3s stats:', error);
+        showK3sError('Unable to connect to K3s cluster');
+    }
+}
+
+function updateK3sNodes(nodes) {
+    const container = document.getElementById('k3sNodes');
+    if (!container) return;
+
+    if (nodes.length === 0) {
+        container.innerHTML = '<div class="k3s-empty">No nodes found</div>';
+        return;
+    }
+
+    container.innerHTML = nodes.map(node => `
+        <div class="k3s-node-item ${node.status === 'Ready' ? 'ready' : 'not-ready'}">
+            <div class="k3s-node-header">
+                <span class="k3s-node-name">${node.name}</span>
+                <span class="k3s-node-status">${node.status}</span>
+            </div>
+            <div class="k3s-node-details">
+                <span>Role: ${node.roles || 'worker'}</span>
+                <span>v${node.version}</span>
+                <span>CPU: ${node.capacity.cpu}</span>
+                <span>Mem: ${formatMemory(node.capacity.memory)}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateK3sPods(pods) {
+    const container = document.getElementById('k3sPods');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <span class="k3s-stat">Total: ${pods.total || 0}</span>
+        <span class="k3s-stat k3s-running">Running: ${pods.running || 0}</span>
+        <span class="k3s-stat k3s-pending">Pending: ${pods.pending || 0}</span>
+        <span class="k3s-stat k3s-failed">Failed: ${pods.failed || 0}</span>
+    `;
+}
+
+function updateK3sDeployments(deployments) {
+    const container = document.getElementById('k3sDeployments');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <span class="k3s-stat">Total: ${deployments.total || 0}</span>
+        <span class="k3s-stat k3s-ready">Ready: ${deployments.ready || 0}</span>
+        <span class="k3s-stat k3s-unavailable">Unavailable: ${deployments.unavailable || 0}</span>
+    `;
+}
+
+function updateK3sServices(services) {
+    const container = document.getElementById('k3sServices');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <span class="k3s-stat">Total: ${services.total || 0}</span>
+        <span class="k3s-stat">ClusterIP: ${services.cluster_ip || 0}</span>
+        <span class="k3s-stat">NodePort: ${services.node_port || 0}</span>
+        <span class="k3s-stat">LoadBalancer: ${services.load_balancer || 0}</span>
+    `;
+}
+
+function updateK3sEvents(events) {
+    const container = document.getElementById('k3sEvents');
+    if (!container) return;
+
+    if (events.length === 0) {
+        container.innerHTML = '<div class="k3s-empty">No recent events</div>';
+        return;
+    }
+
+    container.innerHTML = events.map(event => `
+        <div class="k3s-event-item ${event.type.toLowerCase()}">
+            <div class="k3s-event-header">
+                <span class="k3s-event-type">${event.type}</span>
+                <span class="k3s-event-reason">${event.reason}</span>
+            </div>
+            <div class="k3s-event-message">${event.message}</div>
+            <div class="k3s-event-meta">
+                <span>${event.involved_object.kind}/${event.involved_object.name}</span>
+                <span>${formatTimestamp(event.timestamp)}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function showK3sError(message) {
+    const errorEl = document.getElementById('k3sError');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+    }
+}
+
+function hideK3sError() {
+    const errorEl = document.getElementById('k3sError');
+    if (errorEl) {
+        errorEl.style.display = 'none';
+    }
+}
+
+function formatMemory(mem_str) {
+    const ki = parseInt(mem_str);
+    if (ki >= 1024 * 1024) {
+        return (ki / (1024 * 1024)).toFixed(1) + 'Gi';
+    } else if (ki >= 1024) {
+        return (ki / 1024).toFixed(0) + 'Mi';
+    }
+    return ki + 'Ki';
+}
+
+function formatTimestamp(ts) {
+    const date = new Date(ts);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return date.toLocaleDateString();
+}

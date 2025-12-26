@@ -100,6 +100,55 @@
             </div>
         </section>
 
+
+
+        <!-- K3s Cluster Monitor Section -->
+        <section class="k3s-monitor hidden" id="k3sMonitor">
+            <h2 class="k3s-title">K3s Cluster Monitor</h2>
+
+            <div class="k3s-error" id="k3sError" style="display: none;"></div>
+
+            <!-- Nodes Section -->
+            <div class="k3s-section hidden" id="k3sNodesSection">
+                <h3 class="k3s-section-title">Nodes</h3>
+                <div class="k3s-nodes" id="k3sNodes">
+                    <div class="k3s-loading">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Pods Section -->
+            <div class="k3s-section hidden" id="k3sPodsSection">
+                <h3 class="k3s-section-title">Pods</h3>
+                <div class="k3s-stats" id="k3sPods">
+                    <div class="k3s-loading">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Deployments Section -->
+            <div class="k3s-section hidden" id="k3sDeploymentsSection">
+                <h3 class="k3s-section-title">Deployments</h3>
+                <div class="k3s-stats" id="k3sDeployments">
+                    <div class="k3s-loading">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div class="k3s-section hidden" id="k3sServicesSection">
+                <h3 class="k3s-section-title">Services</h3>
+                <div class="k3s-stats" id="k3sServices">
+                    <div class="k3s-loading">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Events Section -->
+            <div class="k3s-section hidden" id="k3sEventsSection">
+                <h3 class="k3s-section-title">Recent Events</h3>
+                <div class="k3s-events" id="k3sEvents">
+                    <div class="k3s-loading">Loading...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
             <div class="footer-links">

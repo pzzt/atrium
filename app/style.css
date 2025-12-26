@@ -616,3 +616,207 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ============================================
+   K3s Monitor Styles
+   ============================================ */
+
+.k3s-monitor {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease;
+}
+
+.k3s-title {
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.k3s-error {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    padding: 15px;
+    color: var(--danger);
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.k3s-section {
+    margin-bottom: 20px;
+}
+
+.k3s-section.hidden {
+    display: none;
+}
+
+.k3s-section-title {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.k3s-nodes,
+.k3s-stats,
+.k3s-events {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.k3s-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.k3s-stat {
+    background: var(--bg-secondary);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.k3s-stat.k3s-running,
+.k3s-stat.k3s-ready {
+    color: var(--success);
+}
+
+.k3s-stat.k3s-pending {
+    color: var(--accent);
+}
+
+.k3s-stat.k3s-failed,
+.k3s-stat.k3s-unavailable {
+    color: var(--danger);
+}
+
+.k3s-node-item {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.k3s-node-item.ready {
+    border-left-color: var(--success);
+}
+
+.k3s-node-item.not-ready {
+    border-left-color: var(--danger);
+}
+
+.k3s-node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.k3s-node-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.k3s-node-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    background: var(--bg-card);
+}
+
+.k3s-node-item.ready .k3s-node-status {
+    color: var(--success);
+}
+
+.k3s-node-item.not-ready .k3s-node-status {
+    color: var(--danger);
+}
+
+.k3s-node-details {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.k3s-event-item {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 12px;
+    border-left: 4px solid var(--text-secondary);
+}
+
+.k3s-event-item.normal {
+    border-left-color: var(--success);
+}
+
+.k3s-event-item.warning {
+    border-left-color: var(--accent);
+}
+
+.k3s-event-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.k3s-event-type {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.k3s-event-item.normal .k3s-event-type {
+    color: var(--success);
+}
+
+.k3s-event-item.warning .k3s-event-type {
+    color: var(--accent);
+}
+
+.k3s-event-reason {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.k3s-event-message {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.k3s-event-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.k3s-loading,
+.k3s-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .k3s-node-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .k3s-stats {
+        flex-direction: column;
+    }
+}
