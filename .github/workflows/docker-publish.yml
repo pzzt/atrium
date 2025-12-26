@@ -59,4 +59,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: pzzt/atrium
           short-description: Self-hosted services dashboard with system monitoring
-          readme: README.md
+          readme-filepath: README.md
