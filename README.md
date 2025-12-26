@@ -1,6 +1,6 @@
 # Atrium
 
-> A self-hosted services dashboard with system monitoring, optimized for Raspberry Pi
+> A self-hosted services dashboard with system monitoring
 
 ![Docker](https://img.shields.io/badge/docker-multi--arch-blue?logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -19,7 +19,7 @@
 - 📱 **Responsive Design** - Works perfectly on mobile and desktop
 - 💾 **Docker Volume Persistence** - Configuration stored in `/data/config.json`
 - 🐳 **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
-- ⚡ **Lightweight** - Optimized for Raspberry Pi 3
+- ⚡ **Lightweight** - Minimal resource usage
 
 ## 🚀 Quick Start
 
@@ -29,7 +29,7 @@
 docker run -d --name atrium -p 8080:80 -v atrium-data:/data --restart unless-stopped pzzt/atrium:latest
 ```
 
-Access at: `http://your-raspberry-pi-ip:8080`
+Access at: `http://localhost:8080` or `http://your-server-ip:8080`
 
 > **Note**: The `-v atrium-data:/data` flag ensures your configuration persists across container updates. If port 8080 is already in use, you can change the host port (e.g., `-p 80:80` for port 80)
 
