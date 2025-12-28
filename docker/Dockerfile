@@ -3,6 +3,10 @@
 
 FROM nginx:alpine
 
+# Accept build arguments from Docker Hub or local builds
+ARG SOURCE_COMMIT
+ARG DOCKER_TAG=latest
+
 # Install git and python3
 RUN apk add --no-cache git python3 py3-pip && \
     pip3 install --no-cache-dir --break-system-packages kubernetes
@@ -18,11 +22,12 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy application files
 COPY app/ /usr/share/nginx/html/
 
-# Copy .git directory for version detection
-COPY .git/ /root/.git/
-
-# Generate version.js from git tags
-RUN VERSION=$(git describe --tags --always 2>/dev/null || echo "dev") && \
+# Generate version.js - use SOURCE_COMMIT from Docker Hub, or git describe for local builds
+RUN if [ -n "$SOURCE_COMMIT" ]; then \
+        VERSION="${SOURCE_COMMIT:0:7}"; \
+    else \
+        VERSION=$(git describe --tags --always 2>/dev/null || echo "dev"); \
+    fi && \
     echo "window.APP_VERSION = \"${VERSION}\";" > /usr/share/nginx/html/version.js
 
 # Ensure all files have correct permissions for nginx
