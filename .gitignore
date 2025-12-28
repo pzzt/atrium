@@ -99,3 +99,6 @@ SESSION_NOTES.md
 # --- User downloaded configs ---
 *.json
 !app/i18n/*.json
+
+# --- Kubernetes manifests (deployment specific) ---
+k3s/
