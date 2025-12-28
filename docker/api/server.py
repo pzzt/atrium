@@ -283,19 +283,20 @@ def get_k3s_stats():
     try:
         # Try in-cluster config first
         try:
-            # Set standard Kubernetes environment variables if not already set
-            # The Kubernetes Python client automatically uses these when calling load_incluster_config()
-            if not os.getenv('KUBERNETES_SERVICE_HOST'):
-                os.environ['KUBERNETES_SERVICE_HOST'] = os.getenv('KUBERNETES_API_HOST', 'kubernetes.default.svc')
-            if not os.getenv('KUBERNETES_SERVICE_PORT'):
-                # Extract port from custom host if provided, otherwise use default 6443
-                custom_host = os.getenv('KUBERNETES_API_HOST', '')
-                if ':' in custom_host.replace('https://', '').replace('http://', ''):
-                    # Port is specified in custom host
-                    port = custom_host.split(':')[-1].split('/')[0]
-                else:
-                    port = '6443'
-                os.environ['KUBERNETES_SERVICE_PORT'] = port
+            # Set standard Kubernetes environment variables for API server connection
+            # IMPORTANT: Override any auto-injected env vars to use correct API server endpoint (kubernetes.default.svc:6443)
+            # Kubernetes auto-injects KUBERNETES_SERVICE_HOST=10.43.0.1 and KUBERNETES_SERVICE_PORT=443
+            # but we need the API server, not the HTTPS service
+            custom_host = os.getenv('KUBERNETES_API_HOST', 'kubernetes.default.svc')
+            if ':' in custom_host.replace('https://', '').replace('http://', ''):
+                # Port is specified in custom host
+                port = custom_host.split(':')[-1].split('/')[0]
+            else:
+                port = '6443'
+
+            # ALWAYS override these env vars to ensure correct API server connection
+            os.environ['KUBERNETES_SERVICE_HOST'] = custom_host
+            os.environ['KUBERNETES_SERVICE_PORT'] = port
 
             # Load in-cluster config (automatically uses token and CA from standard paths)
             config.load_incluster_config()
