@@ -62,12 +62,6 @@ jobs:
             SOURCE_COMMIT=${{ github.sha }}
             DOCKER_TAG=latest
 
-      - name: Update repo description
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peter-evans/dockerhub-description@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: pzzt/atrium
-          short-description: Self-hosted services dashboard with system monitoring
-          readme-filepath: README.md
+      # Note: dockerhub-description step disabled due to "Forbidden" error
+      # The image builds and pushes successfully without this step
+      # Repository description can be updated manually on Docker Hub if needed
