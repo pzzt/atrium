@@ -11,6 +11,8 @@ services:
       - TZ=Europe/Rome
     volumes:
       - atrium-data:/data
+      # K3s kubeconfig for cluster monitoring (optional)
+      - /etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro
     # Optional: Resource limits for Raspberry Pi
     deploy:
       resources:
@@ -20,6 +22,8 @@ services:
         reservations:
           cpus: '0.25'
           memory: 64M
+    # Alternative: Use host network for K3s access (uncomment if kubeconfig mount doesn't work)
+    # network_mode: host
 
 volumes:
   atrium-data:

@@ -305,6 +305,8 @@ function renderServices() {
         const card = document.createElement('a');
         card.href = service.url;
         card.className = `service-card ${service.color}`;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
         card.innerHTML = `
             <div class="card-icon">${service.icon}</div>
             <h2 class="card-title">${service.name}</h2>

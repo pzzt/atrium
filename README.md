@@ -136,7 +136,20 @@ Atrium supports two authentication methods:
 
 #### Option 1: Mount kubeconfig File (Recommended for External Access)
 
-Mount your kubeconfig file when starting the container:
+Mount your kubeconfig file when starting the container.
+
+**For K3s clusters**, use the K3s kubeconfig path:
+
+```bash
+docker run -d --name atrium \
+  -p 8080:80 \
+  -v atrium-data:/data \
+  -v /etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro \
+  --restart unless-stopped \
+  pzzt/atrium:latest
+```
+
+**For other Kubernetes distributions**, use your standard kubeconfig:
 
 ```bash
 docker run -d --name atrium \
@@ -196,7 +209,7 @@ subjects:
 
 ### Using Docker Compose
 
-Add the kubeconfig volume mount to your `docker-compose.yml`:
+**For K3s clusters**, add the K3s kubeconfig volume mount to your `docker-compose.yml`:
 
 ```yaml
 services:
@@ -207,16 +220,34 @@ services:
       - "8080:80"
     volumes:
       - atrium-data:/data
-      - ~/.kube/config:/root/.kube/config:ro
+      - /etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro
     restart: unless-stopped
 ```
 
+**Alternative: Host Network Mode**
+
+If the kubeconfig mount doesn't work, you can use host networking instead:
+
+```yaml
+services:
+  atrium:
+    image: pzzt/atrium:latest
+    container_name: atrium
+    network_mode: host
+    volumes:
+      - atrium-data:/data
+    restart: unless-stopped
+```
+
+> **Note**: With `network_mode: host`, the container shares the host's network stack and can access `localhost` services directly. The port mapping is not needed in this mode.
+
 ### Troubleshooting K3s Monitoring
 
-**"Unable to connect to K3s cluster" message appears:**
-- Verify your kubeconfig file is correctly mounted
-- Check that the kubeconfig has valid credentials
-- Ensure the container has network access to the K3s API server
+**"Unable to connect to K3s cluster" or `HTTPSConnectionPool(host='10.43.0.1', port=443): Max retries exceeded`:**
+- This error occurs when the container cannot reach the K3s API server
+- **Solution 1**: Mount the K3s kubeconfig file (`/etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro`)
+- **Solution 2**: Use `network_mode: host` in docker-compose.yml
+- Verify the kubeconfig path is correct for your K3s installation
 - Check container logs: `docker logs atrium`
 
 **No data showing in K3s sections:**
