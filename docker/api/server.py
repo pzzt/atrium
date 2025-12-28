@@ -359,7 +359,7 @@ def get_k3s_stats():
             cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1)
 
         for event in events.items[:20]:  # Last 20 events
-            if cutoff and event.last_timestamp < cutoff:
+            if cutoff and event.last_timestamp and event.last_timestamp < cutoff:
                 continue
             recent_events.append({
                 'type': event.type,  # Normal, Warning
