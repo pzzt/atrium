@@ -287,9 +287,10 @@ def get_k3s_stats():
             config.load_incluster_config()
 
             # Override the API server host to use the correct endpoint
-            # Kubernetes auto-injects env vars pointing to the HTTPS service (10.43.0.1:443)
-            # but we need the API server directly (kubernetes.default.svc:6443)
-            custom_host = os.getenv('KUBERNETES_API_HOST', 'https://kubernetes.default.svc:6443')
+            # The kubernetes service is on 10.43.0.1:443 (not the API server port 6443)
+            # Kubernetes service on port 443 redirects to API server on port 6443
+            # Use the service IP with port 443 which is accessible from within the cluster
+            custom_host = os.getenv('KUBERNETES_API_HOST', 'https://10.43.0.1')
 
             # Ensure the URL has the correct format
             if not custom_host.startswith('https://') and not custom_host.startswith('http://'):
