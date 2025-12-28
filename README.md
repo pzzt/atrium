@@ -114,7 +114,7 @@ Data is fetched every 5 seconds from `/proc` filesystem (Linux only).
 
 ## ☸️ K3s Cluster Monitoring
 
-Atrium includes K3s cluster monitoring with 5 independent toggleable sections:
+Atrium includes Kubernetes cluster monitoring with 5 independent toggleable sections:
 
 - **Nodes**: Cluster node status, roles, versions, and resource capacity
 - **Pods**: Total, running, pending, failed, and succeeded pod counts
@@ -130,26 +130,108 @@ Atrium includes K3s cluster monitoring with 5 independent toggleable sections:
 
 Each section can be enabled independently, so you can choose exactly what cluster information to show on your dashboard.
 
-### Configure K3s Access
+### ⚠️ Important: v1.7.0+ Changes
 
-Atrium supports two authentication methods:
+Starting from **v1.7.0**, Atrium uses **automatic Kubernetes in-cluster configuration** instead of hardcoded IPs or manual kubeconfig mounting. This makes it work seamlessly on any Kubernetes cluster.
 
-#### Option 1: Mount kubeconfig File (Recommended for External Access)
+### Deployment Methods
 
-Mount your kubeconfig file when starting the container.
+#### Method 1: Deploy Inside Kubernetes (Recommended)
 
-**For K3s clusters**, use the K3s kubeconfig path:
+When deploying Atrium inside your Kubernetes cluster, it automatically detects and uses the in-cluster configuration.
 
-```bash
-docker run -d --name atrium \
-  -p 8080:80 \
-  -v atrium-data:/data \
-  -v /etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro \
-  --restart unless-stopped \
-  pzzt/atrium:latest
+**Required RBAC Configuration:**
+
+Atrium requires specific permissions to monitor your cluster. Create these resources:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: atrium
+  namespace: atrium
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: atrium
+rules:
+  # Nodes
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  # Pods
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  # Deployments
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  # Services
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch"]
+  # Events
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: atrium
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: atrium
+subjects:
+  - kind: ServiceAccount
+    name: atrium
+    namespace: atrium
 ```
 
-**For other Kubernetes distributions**, use your standard kubeconfig:
+**Apply the RBAC:**
+
+```bash
+kubectl apply -f atrium-rbac.yaml
+```
+
+**Deploy Atrium:**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atrium
+  namespace: atrium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atrium
+  template:
+    metadata:
+      labels:
+        app: atrium
+    spec:
+      serviceAccountName: atrium
+      containers:
+      - name: atrium
+        image: pzzt/atrium:latest
+        ports:
+        - containerPort: 80
+```
+
+Atrium will automatically:
+- Detect it's running in-cluster
+- Load the ServiceAccount token from `/var/run/secrets/kubernetes.io/serviceaccount/token`
+- Load the CA certificate from `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
+- Resolve `kubernetes.default.svc` to connect to the API server
+
+#### Method 2: External Access with kubeconfig (Docker/Podman)
+
+For running Atrium outside the cluster (e.g., on your workstation):
 
 ```bash
 docker run -d --name atrium \
@@ -160,104 +242,51 @@ docker run -d --name atrium \
   pzzt/atrium:latest
 ```
 
-Or use the `KUBECONFIG` environment variable:
+Replace `~/.kube/config` with your actual kubeconfig path.
+
+#### Custom API Endpoint (Optional)
+
+If your cluster uses a non-standard API endpoint, set the `KUBERNETES_API_HOST` environment variable:
+
+```yaml
+env:
+  - name: KUBERNETES_API_HOST
+    value: "https://your-custom-api-server:6443"
+```
+
+Or with Docker:
 
 ```bash
 docker run -d --name atrium \
   -p 8080:80 \
   -v atrium-data:/data \
-  -v /path/to/kubeconfig:/config:ro \
-  -e KUBECONFIG=/config \
+  -v ~/.kube/config:/root/.kube/config:ro \
+  -e KUBERNETES_API_HOST=https://custom-api-server:6443 \
   --restart unless-stopped \
   pzzt/atrium:latest
 ```
 
-> **Important**: The `:ro` flag makes the mount read-only for security.
-
-#### Option 2: In-Cluster Configuration (For Atrium Deployed in K3s)
-
-If you deploy Atrium inside your K3s cluster, it will automatically use the ServiceAccount token:
-
-1. Create a ServiceAccount for Atrium:
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: atrium
-  namespace: default
-```
-
-2. Create a ClusterRoleBinding with read permissions:
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: atrium
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: view
-subjects:
-- kind: ServiceAccount
-  name: atrium
-  namespace: default
-```
-
-3. Deploy Atrium in your cluster (the container will automatically detect the in-cluster config)
-
-### Using Docker Compose
-
-**For K3s clusters**, add the K3s kubeconfig volume mount to your `docker-compose.yml`:
-
-```yaml
-services:
-  atrium:
-    image: pzzt/atrium:latest
-    container_name: atrium
-    ports:
-      - "8080:80"
-    volumes:
-      - atrium-data:/data
-      - /etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro
-    restart: unless-stopped
-```
-
-**Alternative: Host Network Mode**
-
-If the kubeconfig mount doesn't work, you can use host networking instead:
-
-```yaml
-services:
-  atrium:
-    image: pzzt/atrium:latest
-    container_name: atrium
-    network_mode: host
-    volumes:
-      - atrium-data:/data
-    restart: unless-stopped
-```
-
-> **Note**: With `network_mode: host`, the container shares the host's network stack and can access `localhost` services directly. The port mapping is not needed in this mode.
-
 ### Troubleshooting K3s Monitoring
 
-**"Unable to connect to K3s cluster" or `HTTPSConnectionPool(host='10.43.0.1', port=443): Max retries exceeded`:**
-- This error occurs when the container cannot reach the K3s API server
-- **Solution 1**: Mount the K3s kubeconfig file (`/etc/rancher/k3s/k3s.yaml:/root/.kube/config:ro`)
-- **Solution 2**: Use `network_mode: host` in docker-compose.yml
-- Verify the kubeconfig path is correct for your K3s installation
-- Check container logs: `docker logs atrium`
+**"403 Forbidden" or "cannot list resource 'nodes'":**
+- The ServiceAccount lacks required permissions
+- **Solution**: Apply the custom ClusterRole `atrium` provided above
+- Do NOT use the default `view` ClusterRole - it may not have all required permissions
+
+**"Unable to connect to K3s cluster" or connection timeout:**
+- Check if Atrium can reach the API server: `kubectl exec -n atrium deployment/atrium -- curl -k https://kubernetes.default.svc`
+- Verify ServiceAccount exists: `kubectl get sa atrium -n atrium`
+- Check ClusterRoleBinding: `kubectl get clusterrolebinding atrium`
+- Review pod logs: `kubectl logs -n atrium deployment/atrium`
 
 **No data showing in K3s sections:**
-- Verify the ServiceAccount has sufficient permissions (use `view` ClusterRole or higher)
-- Check if the K3s cluster is accessible from the container
-- Try testing kubectl access from inside the container: `docker exec -it atrium kubectl get nodes`
+- Ensure K3s sections are enabled in Configuration → Nerd tab
+- Verify the cluster has resources (nodes, pods, deployments)
+- Check browser console for JavaScript errors
 
-**Only some sections display data:**
-- This is expected behavior if you've enabled only specific sections in Configuration → Nerd tab
-- Each K3s section (Nodes, Pods, Deployments, Services, Events) works independently
+**Events showing incorrect timestamps:**
+- Some events may not have timestamps - this is expected
+- These events will display with "No timestamp" or similar
 
 ## 🌍 Multi-Language Support
 
