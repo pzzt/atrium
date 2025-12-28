@@ -355,7 +355,10 @@ def get_k3s_stats():
         from datetime import datetime, timedelta
         events = v1.list_event_for_all_namespaces()
         recent_events = []
-        cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1) if events.items else None
+        # Calculate cutoff time safely, handling None timestamps
+        cutoff = None
+        if events.items and events.items[0].last_timestamp and events.items[0].last_timestamp.tzinfo:
+            cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1)
 
         for event in events.items[:20]:  # Last 20 events
             if cutoff and event.last_timestamp < cutoff:
