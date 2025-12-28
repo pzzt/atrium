@@ -283,23 +283,20 @@ def get_k3s_stats():
     try:
         # Try in-cluster config first
         try:
-            # Set standard Kubernetes environment variables for API server connection
-            # IMPORTANT: Override any auto-injected env vars to use correct API server endpoint (kubernetes.default.svc:6443)
-            # Kubernetes auto-injects KUBERNETES_SERVICE_HOST=10.43.0.1 and KUBERNETES_SERVICE_PORT=443
-            # but we need the API server, not the HTTPS service
-            custom_host = os.getenv('KUBERNETES_API_HOST', 'kubernetes.default.svc')
-            if ':' in custom_host.replace('https://', '').replace('http://', ''):
-                # Port is specified in custom host
-                port = custom_host.split(':')[-1].split('/')[0]
-            else:
-                port = '6443'
-
-            # ALWAYS override these env vars to ensure correct API server connection
-            os.environ['KUBERNETES_SERVICE_HOST'] = custom_host
-            os.environ['KUBERNETES_SERVICE_PORT'] = port
-
             # Load in-cluster config (automatically uses token and CA from standard paths)
             config.load_incluster_config()
+
+            # Override the API server host to use the correct endpoint
+            # Kubernetes auto-injects env vars pointing to the HTTPS service (10.43.0.1:443)
+            # but we need the API server directly (kubernetes.default.svc:6443)
+            custom_host = os.getenv('KUBERNETES_API_HOST', 'https://kubernetes.default.svc:6443')
+
+            # Ensure the URL has the correct format
+            if not custom_host.startswith('https://') and not custom_host.startswith('http://'):
+                custom_host = f'https://{custom_host}'
+
+            # Directly set the configuration host
+            client.Configuration._default.host = custom_host
         except config.ConfigException:
             # Fallback to kubeconfig
             kubeconfig_path = os.getenv('KUBECONFIG', '/root/.kube/config')
