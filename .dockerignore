@@ -1,7 +1,7 @@
 # Git
-.git
 .gitignore
 .gitattributes
+# NOTE: .git directory must NOT be excluded for version detection during Docker build
 
 # Documentation e scripts
 *.md
