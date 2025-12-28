@@ -37,6 +37,10 @@ jobs:
           tags: |
             type=raw,value=latest
 
+      - name: Get short SHA
+        id: vars
+        run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -44,12 +48,19 @@ jobs:
           file: ./docker/Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            pzzt/atrium:latest
+            pzzt/atrium:${{ steps.vars.outputs.short_sha }}
           labels: |
             org.opencontainers.image.title=Atrium
             org.opencontainers.image.description=Self-hosted services dashboard with system monitoring
             org.opencontainers.image.source=https://github.com/pzzt/atrium
             org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.vars.outputs.short_sha }}
+          build-args: |
+            SOURCE_COMMIT=${{ github.sha }}
+            DOCKER_TAG=latest
 
       - name: Update repo description
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
