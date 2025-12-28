@@ -284,6 +284,10 @@ def get_k3s_stats():
         # Try in-cluster config first
         try:
             config.load_incluster_config()
+            # Explicitly set the correct API server endpoint
+            # Use environment variable if provided, otherwise use default Kubernetes service DNS
+            api_host = os.getenv('KUBERNETES_API_HOST', 'https://kubernetes.default.svc')
+            client.Configuration._default.host = api_host
         except config.ConfigException:
             # Fallback to kubeconfig
             kubeconfig_path = os.getenv('KUBECONFIG', '/root/.kube/config')
