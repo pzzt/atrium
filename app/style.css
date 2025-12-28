@@ -172,14 +172,14 @@ body {
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 18px;
     margin-bottom: 30px;
 }
 
 .service-card {
     background: var(--bg-card);
-    border-radius: 12px;
-    padding: 25px;
+    border-radius: 10px;
+    padding: 18px;
     text-decoration: none;
     color: var(--text-primary);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -190,7 +190,7 @@ body {
     flex-direction: row;
     align-items: center;
     text-align: left;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
 }
 
@@ -243,35 +243,35 @@ body {
 
 /* Card content */
 .card-icon {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    border-radius: 12px;
+    font-size: 1.75rem;
+    border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
 }
 
 .card-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     flex-grow: 1;
 }
 
 .card-description {
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    margin-bottom: 15px;
-    line-height: 1.5;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
     flex-grow: 1;
 }
 
 .card-link {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     margin-left: auto;
     transition: color 0.3s ease;
 }
@@ -858,10 +858,17 @@ body {
     .service-card {
         flex-direction: column;
         text-align: center;
-        gap: 15px;
+        gap: 12px;
+        padding: 15px;
     }
 
     .card-link {
         margin-left: 0;
+    }
+
+    .card-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
     }
 }
