@@ -178,8 +178,8 @@ body {
 
 .service-card {
     background: var(--bg-card);
-    border-radius: 20px;
-    padding: 35px 25px;
+    border-radius: 12px;
+    padding: 25px;
     text-decoration: none;
     color: var(--text-primary);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -187,9 +187,11 @@ body {
     position: relative;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
+    text-align: left;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .service-card::before {
@@ -241,21 +243,22 @@ body {
 
 /* Card content */
 .card-icon {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    border-radius: 20px;
-    margin-bottom: 20px;
+    font-size: 2rem;
+    border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
 }
 
 .card-title {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 10px;
+    flex-grow: 1;
 }
 
 .card-description {
@@ -263,12 +266,13 @@ body {
     font-size: 0.95rem;
     margin-bottom: 15px;
     line-height: 1.5;
+    flex-grow: 1;
 }
 
 .card-link {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-top: auto;
+    margin-left: auto;
     transition: color 0.3s ease;
 }
 
@@ -846,5 +850,18 @@ body {
 
     .k3s-stats {
         flex-direction: column;
+    }
+}
+
+/* Service cards responsive */
+@media (max-width: 500px) {
+    .service-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .card-link {
+        margin-left: 0;
     }
 }
