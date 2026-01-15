@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             manualRefreshK3s();
         });
     }
+
+    // Start system monitor after DOM is ready
+    initSystemMonitor();
 });
 
 // Update app title
@@ -818,9 +821,6 @@ async function initSystemMonitor() {
     // Then update every 15 seconds (with intelligent caching)
     statsUpdateInterval = setInterval(updateSystemMonitor, 15000);
 }
-
-// Start system monitor when page loads
-initSystemMonitor();
 
 // Manual refresh functions
 async function manualRefreshSystem() {
