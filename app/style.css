@@ -679,7 +679,24 @@ body {
 
 .section-header .system-title,
 .section-header .k3s-title {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
+    text-align: left !important;
+    margin-right: auto;
+}
+
+/* Override text-align for titles in section headers */
+.system-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.k3s-title {
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
 }
 
 .refresh-btn {
