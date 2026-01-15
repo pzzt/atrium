@@ -511,12 +511,57 @@ renderNews();
 
 let statsUpdateInterval;
 
+// Client-side cache using sessionStorage (60 seconds TTL)
+const CLIENT_CACHE_TTL = 60; // seconds
+
+function getCachedData(key) {
+    try {
+        const cached = sessionStorage.getItem(key);
+        if (!cached) return null;
+
+        const data = JSON.parse(cached);
+        const age = (Date.now() - data.timestamp) / 1000;
+
+        if (age < CLIENT_CACHE_TTL) {
+            console.log(`[Cache] Using cached ${key} (${Math.round(age)}s old)`);
+            return data.content;
+        } else {
+            console.log(`[Cache] Expired ${key} (${Math.round(age)}s old)`);
+            sessionStorage.removeItem(key);
+            return null;
+        }
+    } catch (error) {
+        console.error(`[Cache] Error reading ${key}:`, error);
+        return null;
+    }
+}
+
+function setCachedData(key, content) {
+    try {
+        const data = {
+            content: content,
+            timestamp: Date.now()
+        };
+        sessionStorage.setItem(key, JSON.stringify(data));
+        console.log(`[Cache] Saved ${key}`);
+    } catch (error) {
+        console.error(`[Cache] Error saving ${key}:`, error);
+    }
+}
+
 async function fetchSystemStats(nocache = false) {
     try {
         const url = nocache ? '/api/stats?nocache=true' : '/api/stats';
         const response = await fetch(url);
         if (!response.ok) throw new Error('API not available');
-        return await response.json();
+        const data = await response.json();
+
+        // Cache the response
+        if (!nocache && data) {
+            setCachedData('systemStats', data);
+        }
+
+        return data;
     } catch (error) {
         console.error('Failed to fetch system stats:', error);
         return null;
@@ -746,7 +791,28 @@ async function updateSystemMonitor(nocache = false) {
 
 // Initialize system monitor
 async function initSystemMonitor() {
-    // First update immediately
+    // First, try to display cached data immediately (synchronously)
+    const cachedSystemStats = getCachedData('systemStats');
+    if (cachedSystemStats) {
+        console.log('[Init] Displaying cached system stats');
+        updateCPUStats(cachedSystemStats.cpu);
+        updateMemoryStats(cachedSystemStats.memory);
+        updateUptimeStats(cachedSystemStats);
+        updateNetworkStats(cachedSystemStats.network);
+    }
+
+    const cachedK3sStats = getCachedData('k3sStats');
+    if (cachedK3sStats && !cachedK3sStats.error) {
+        console.log('[Init] Displaying cached K3s stats');
+        if (appConfig.showK3sNodes) updateK3sNodes(cachedK3sStats.nodes || []);
+        if (appConfig.showK3sPods) updateK3sPods(cachedK3sStats.pods || {});
+        if (appConfig.showK3sDeployments) updateK3sDeployments(cachedK3sStats.deployments || {});
+        if (appConfig.showK3sServices) updateK3sServices(cachedK3sStats.services || {});
+        if (appConfig.showK3sEvents) updateK3sEvents(cachedK3sStats.events || []);
+        hideK3sError();
+    }
+
+    // Then fetch fresh data from API in background (async)
     await updateSystemMonitor();
 
     // Then update every 15 seconds (with intelligent caching)
@@ -811,6 +877,11 @@ async function updateK3sStats(nocache = false) {
         if (data.error) {
             showK3sError(data.error);
             return;
+        }
+
+        // Cache the response
+        if (!nocache && data) {
+            setCachedData('k3sStats', data);
         }
 
         if (appConfig.showK3sNodes) updateK3sNodes(data.nodes || []);
