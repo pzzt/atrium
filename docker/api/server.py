@@ -8,6 +8,7 @@ import time
 import fcntl
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
+from datetime import timezone
 import os
 
 # Try to import kubernetes library for k3s monitoring
@@ -390,17 +391,19 @@ def fetch_k3s_stats_impl():
         'load_balancer': sum(1 for s in services.items if s.spec.type == 'LoadBalancer')
     }
 
-    # Get recent events (last hour)
+    # Get all events from all namespaces and sort by timestamp
     events = v1.list_event_for_all_namespaces()
-    recent_events = []
-    # Calculate cutoff time safely, handling None timestamps
-    cutoff = None
-    if events.items and events.items[0].last_timestamp and events.items[0].last_timestamp.tzinfo:
-        cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1)
 
-    for event in events.items[:20]:  # Last 20 events
-        if cutoff and event.last_timestamp and event.last_timestamp < cutoff:
-            continue
+    # Sort events by timestamp (most recent first), handling None timestamps
+    sorted_events = sorted(
+        events.items,
+        key=lambda e: e.last_timestamp if e.last_timestamp else datetime.min.replace(tzinfo=timezone.utc),
+        reverse=True
+    )
+
+    # Take the 10 most recent events
+    recent_events = []
+    for event in sorted_events[:10]:
         recent_events.append({
             'type': event.type,  # Normal, Warning
             'reason': event.reason,
@@ -418,7 +421,7 @@ def fetch_k3s_stats_impl():
         'pods': pods_data,
         'deployments': deployments_data,
         'services': services_data,
-        'events': recent_events[:10]  # Last 10 events
+        'events': recent_events
     }
 
 def run_server(port=8001):

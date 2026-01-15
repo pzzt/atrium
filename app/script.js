@@ -559,8 +559,8 @@ async function fetchSystemStats(nocache = false) {
         if (!response.ok) throw new Error('API not available');
         const data = await response.json();
 
-        // Cache the response
-        if (!nocache && data) {
+        // Always cache the response (even when nocache=true for manual refresh)
+        if (data) {
             setCachedData('systemStats', data);
         }
 
@@ -879,8 +879,8 @@ async function updateK3sStats(nocache = false) {
             return;
         }
 
-        // Cache the response
-        if (!nocache && data) {
+        // Always cache the response (even when nocache=true for manual refresh)
+        if (data) {
             setCachedData('k3sStats', data);
         }
 
