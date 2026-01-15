@@ -32,6 +32,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateK3sMonitorVisibility();
         });
     }
+
+    // Attach refresh button event listeners
+    const systemRefreshBtn = document.getElementById('systemRefreshBtn');
+    const k3sRefreshBtn = document.getElementById('k3sRefreshBtn');
+
+    if (systemRefreshBtn) {
+        systemRefreshBtn.addEventListener('click', () => {
+            console.log('System refresh button clicked');
+            manualRefreshSystem();
+        });
+    }
+
+    if (k3sRefreshBtn) {
+        k3sRefreshBtn.addEventListener('click', () => {
+            console.log('K3s refresh button clicked');
+            manualRefreshK3s();
+        });
+    }
 });
 
 // Update app title
@@ -772,20 +790,6 @@ async function manualRefreshK3s() {
         }
     }
 }
-
-// Add refresh button event listeners when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    const systemRefreshBtn = document.getElementById('systemRefreshBtn');
-    const k3sRefreshBtn = document.getElementById('k3sRefreshBtn');
-
-    if (systemRefreshBtn) {
-        systemRefreshBtn.addEventListener('click', manualRefreshSystem);
-    }
-
-    if (k3sRefreshBtn) {
-        k3sRefreshBtn.addEventListener('click', manualRefreshK3s);
-    }
-});
 
 
 
