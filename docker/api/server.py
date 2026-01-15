@@ -19,11 +19,34 @@ except ImportError:
 
 CONFIG_PATH = '/data/config.json'
 
+# Cache configuration
+CACHE_TTL = 15  # seconds
+system_stats_cache = {'data': None, 'timestamp': None}
+k3s_stats_cache = {'data': None, 'timestamp': None}
+
+def get_cached(cache_dict, fetch_func):
+    """Get cached data if available and fresh, otherwise fetch new data"""
+    current_time = time.time()
+
+    # Check if cache is valid
+    if (cache_dict['data'] is not None and
+        cache_dict['timestamp'] is not None and
+        current_time - cache_dict['timestamp'] < CACHE_TTL):
+        return cache_dict['data']
+
+    # Fetch new data
+    data = fetch_func()
+    cache_dict['data'] = data
+    cache_dict['timestamp'] = current_time
+    return data
+
 class StatsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Parse path
+        # Parse path and query parameters
         parsed = urlparse(self.path)
         path = parsed.path
+        query_params = dict(qp.split('=') for qp in parsed.query.split('&')) if parsed.query else {}
+        nocache = query_params.get('nocache', 'false').lower() == 'true'
 
         # CORS headers
         self.send_response(200)
@@ -36,7 +59,7 @@ class StatsHandler(BaseHTTPRequestHandler):
         if path == '/health':
             response = {'status': 'healthy'}
         elif path == '/api/stats':
-            response = get_system_stats()
+            response = get_system_stats(nocache=nocache)
         elif path == '/api/stats/cpu':
             response = {'cpu': get_cpu_usage()}
         elif path == '/api/stats/memory':
@@ -46,7 +69,7 @@ class StatsHandler(BaseHTTPRequestHandler):
         elif path == '/api/config':
             response = get_config()
         elif path == '/api/k3s':
-            response = get_k3s_stats()
+            response = get_k3s_stats(nocache=nocache)
         else:
             response = {'error': 'Not found'}
 
@@ -238,8 +261,14 @@ def get_network_stats():
     except Exception as e:
         return {'error': str(e)}
 
-def get_system_stats():
-    """Get all system statistics"""
+def get_system_stats(nocache=False):
+    """Get all system statistics with optional cache bypass"""
+    if nocache:
+        return fetch_system_stats_impl()
+    return get_cached(system_stats_cache, fetch_system_stats_impl)
+
+def fetch_system_stats_impl():
+    """Implementation function for fetching system stats"""
     # Ottieni CPU (con cache per evitare di rileggere troppo spesso)
     cpu = get_cpu_usage()
 
@@ -275,8 +304,8 @@ def get_load_average():
     except:
         return [0, 0, 0]
 
-def get_k3s_stats():
-    """Get k3s cluster statistics if available"""
+def get_k3s_stats(nocache=False):
+    """Get k3s cluster statistics with optional cache bypass"""
     if not KUBERNETES_AVAILABLE:
         return {'error': 'Kubernetes library not available'}
 
@@ -303,86 +332,94 @@ def get_k3s_stats():
                 return {'error': 'No kubernetes configuration found'}
             config.load_kube_config(config_file=kubeconfig_path)
 
-        v1 = client.CoreV1Api()
-        apps_v1 = client.AppsV1Api()
-
-        # Get nodes
-        nodes = v1.list_node()
-        nodes_data = []
-        for node in nodes.items:
-            nodes_data.append({
-                'name': node.metadata.name,
-                'status': 'Ready' if any(condition.type == 'Ready' and condition.status == 'True' for condition in node.status.conditions) else 'NotReady',
-                'roles': node.metadata.labels.get('kubernetes.io/role', ''),
-                'version': node.status.node_info.kubelet_version,
-                'capacity': {
-                    'cpu': node.status.capacity.get('cpu'),
-                    'memory': node.status.capacity.get('memory'),
-                    'pods': node.status.capacity.get('pods')
-                }
-            })
-
-        # Get pods
-        pods = v1.list_pod_for_all_namespaces()
-        pods_data = {
-            'total': len(pods.items),
-            'running': sum(1 for p in pods.items if p.status.phase == 'Running'),
-            'pending': sum(1 for p in pods.items if p.status.phase == 'Pending'),
-            'failed': sum(1 for p in pods.items if p.status.phase == 'Failed'),
-            'succeeded': sum(1 for p in pods.items if p.status.phase == 'Succeeded')
-        }
-
-        # Get deployments
-        deployments = apps_v1.list_deployment_for_all_namespaces()
-        deployments_data = {
-            'total': len(deployments.items),
-            'ready': sum(1 for d in deployments.items if d.status.ready_replicas == d.spec.replicas),
-            'unavailable': sum(1 for d in deployments.items if d.status.unavailable_replicas and d.status.unavailable_replicas > 0)
-        }
-
-        # Get services
-        services = v1.list_service_for_all_namespaces()
-        services_data = {
-            'total': len(services.items),
-            'cluster_ip': sum(1 for s in services.items if s.spec.type == 'ClusterIP'),
-            'node_port': sum(1 for s in services.items if s.spec.type == 'NodePort'),
-            'load_balancer': sum(1 for s in services.items if s.spec.type == 'LoadBalancer')
-        }
-
-        # Get recent events (last hour)
-        from datetime import datetime, timedelta
-        events = v1.list_event_for_all_namespaces()
-        recent_events = []
-        # Calculate cutoff time safely, handling None timestamps
-        cutoff = None
-        if events.items and events.items[0].last_timestamp and events.items[0].last_timestamp.tzinfo:
-            cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1)
-
-        for event in events.items[:20]:  # Last 20 events
-            if cutoff and event.last_timestamp and event.last_timestamp < cutoff:
-                continue
-            recent_events.append({
-                'type': event.type,  # Normal, Warning
-                'reason': event.reason,
-                'message': event.message,
-                'namespace': event.metadata.namespace,
-                'involved_object': {
-                    'kind': event.involved_object.kind,
-                    'name': event.involved_object.name
-                },
-                'timestamp': event.last_timestamp.isoformat() if event.last_timestamp else None
-            })
-
-        return {
-            'nodes': nodes_data,
-            'pods': pods_data,
-            'deployments': deployments_data,
-            'services': services_data,
-            'events': recent_events[:10]  # Last 10 events
-        }
+        # Use cache if not bypassing
+        if nocache:
+            return fetch_k3s_stats_impl()
+        return get_cached(k3s_stats_cache, fetch_k3s_stats_impl)
 
     except Exception as e:
         return {'error': str(e)}
+
+def fetch_k3s_stats_impl():
+    """Implementation function for fetching K3s stats"""
+    from datetime import datetime, timedelta
+
+    v1 = client.CoreV1Api()
+    apps_v1 = client.AppsV1Api()
+
+    # Get nodes
+    nodes = v1.list_node()
+    nodes_data = []
+    for node in nodes.items:
+        nodes_data.append({
+            'name': node.metadata.name,
+            'status': 'Ready' if any(condition.type == 'Ready' and condition.status == 'True' for condition in node.status.conditions) else 'NotReady',
+            'roles': node.metadata.labels.get('kubernetes.io/role', ''),
+            'version': node.status.node_info.kubelet_version,
+            'capacity': {
+                'cpu': node.status.capacity.get('cpu'),
+                'memory': node.status.capacity.get('memory'),
+                'pods': node.status.capacity.get('pods')
+            }
+        })
+
+    # Get pods
+    pods = v1.list_pod_for_all_namespaces()
+    pods_data = {
+        'total': len(pods.items),
+        'running': sum(1 for p in pods.items if p.status.phase == 'Running'),
+        'pending': sum(1 for p in pods.items if p.status.phase == 'Pending'),
+        'failed': sum(1 for p in pods.items if p.status.phase == 'Failed'),
+        'succeeded': sum(1 for p in pods.items if p.status.phase == 'Succeeded')
+    }
+
+    # Get deployments
+    deployments = apps_v1.list_deployment_for_all_namespaces()
+    deployments_data = {
+        'total': len(deployments.items),
+        'ready': sum(1 for d in deployments.items if d.status.ready_replicas == d.spec.replicas),
+        'unavailable': sum(1 for d in deployments.items if d.status.unavailable_replicas and d.status.unavailable_replicas > 0)
+    }
+
+    # Get services
+    services = v1.list_service_for_all_namespaces()
+    services_data = {
+        'total': len(services.items),
+        'cluster_ip': sum(1 for s in services.items if s.spec.type == 'ClusterIP'),
+        'node_port': sum(1 for s in services.items if s.spec.type == 'NodePort'),
+        'load_balancer': sum(1 for s in services.items if s.spec.type == 'LoadBalancer')
+    }
+
+    # Get recent events (last hour)
+    events = v1.list_event_for_all_namespaces()
+    recent_events = []
+    # Calculate cutoff time safely, handling None timestamps
+    cutoff = None
+    if events.items and events.items[0].last_timestamp and events.items[0].last_timestamp.tzinfo:
+        cutoff = datetime.now(events.items[0].last_timestamp.tzinfo) - timedelta(hours=1)
+
+    for event in events.items[:20]:  # Last 20 events
+        if cutoff and event.last_timestamp and event.last_timestamp < cutoff:
+            continue
+        recent_events.append({
+            'type': event.type,  # Normal, Warning
+            'reason': event.reason,
+            'message': event.message,
+            'namespace': event.metadata.namespace,
+            'involved_object': {
+                'kind': event.involved_object.kind,
+                'name': event.involved_object.name
+            },
+            'timestamp': event.last_timestamp.isoformat() if event.last_timestamp else None
+        })
+
+    return {
+        'nodes': nodes_data,
+        'pods': pods_data,
+        'deployments': deployments_data,
+        'services': services_data,
+        'events': recent_events[:10]  # Last 10 events
+    }
 
 def run_server(port=8001):
     """Start HTTP server"""

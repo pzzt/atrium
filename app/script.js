@@ -493,9 +493,10 @@ renderNews();
 
 let statsUpdateInterval;
 
-async function fetchSystemStats() {
+async function fetchSystemStats(nocache = false) {
     try {
-        const response = await fetch('/api/stats');
+        const url = nocache ? '/api/stats?nocache=true' : '/api/stats';
+        const response = await fetch(url);
         if (!response.ok) throw new Error('API not available');
         return await response.json();
     } catch (error) {
@@ -709,8 +710,8 @@ function drawNetworkChart(canvas) {
     drawLine(networkChartData.tx, '#ff6b6b');
 }
 
-async function updateSystemMonitor() {
-    const stats = await fetchSystemStats();
+async function updateSystemMonitor(nocache = false) {
+    const stats = await fetchSystemStats(nocache);
 
     if (stats) {
         updateCPUStats(stats.cpu);
@@ -721,7 +722,7 @@ async function updateSystemMonitor() {
 
     // Update K3s stats if any section is enabled
     if (appConfig.showK3sNodes || appConfig.showK3sPods || appConfig.showK3sDeployments || appConfig.showK3sServices || appConfig.showK3sEvents) {
-        await updateK3sStats();
+        await updateK3sStats(nocache);
     }
 }
 
@@ -730,12 +731,61 @@ async function initSystemMonitor() {
     // First update immediately
     await updateSystemMonitor();
 
-    // Then update every 5 seconds
-    statsUpdateInterval = setInterval(updateSystemMonitor, 5000);
+    // Then update every 15 seconds (with intelligent caching)
+    statsUpdateInterval = setInterval(updateSystemMonitor, 15000);
 }
 
 // Start system monitor when page loads
 initSystemMonitor();
+
+// Manual refresh functions
+async function manualRefreshSystem() {
+    const refreshBtn = document.getElementById('systemRefreshBtn');
+    if (refreshBtn) {
+        refreshBtn.classList.add('rotating');
+    }
+
+    try {
+        await updateSystemMonitor(true);
+    } finally {
+        if (refreshBtn) {
+            setTimeout(() => {
+                refreshBtn.classList.remove('rotating');
+            }, 500);
+        }
+    }
+}
+
+async function manualRefreshK3s() {
+    const refreshBtn = document.getElementById('k3sRefreshBtn');
+    if (refreshBtn) {
+        refreshBtn.classList.add('rotating');
+    }
+
+    try {
+        await updateK3sStats(true);
+    } finally {
+        if (refreshBtn) {
+            setTimeout(() => {
+                refreshBtn.classList.remove('rotating');
+            }, 500);
+        }
+    }
+}
+
+// Add refresh button event listeners when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    const systemRefreshBtn = document.getElementById('systemRefreshBtn');
+    const k3sRefreshBtn = document.getElementById('k3sRefreshBtn');
+
+    if (systemRefreshBtn) {
+        systemRefreshBtn.addEventListener('click', manualRefreshSystem);
+    }
+
+    if (k3sRefreshBtn) {
+        k3sRefreshBtn.addEventListener('click', manualRefreshK3s);
+    }
+});
 
 
 
@@ -743,9 +793,10 @@ initSystemMonitor();
 // K3s Monitor Functions  
 // ============================================
 
-async function updateK3sStats() {
+async function updateK3sStats(nocache = false) {
     try {
-        const response = await fetch('/api/k3s');
+        const url = nocache ? '/api/k3s?nocache=true' : '/api/k3s';
+        const response = await fetch(url);
         if (!response.ok) {
             showK3sError('K3s API not available');
             return;
