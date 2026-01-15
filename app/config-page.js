@@ -17,7 +17,9 @@ let pageConfig = {
     showK3sPods: false,
     showK3sDeployments: false,
     showK3sServices: false,
-    showK3sEvents: false
+    showK3sEvents: false,
+    showK3sNamespaces: false,
+    showK3sPodDetails: false
 };
 
 // Track editing state
@@ -111,7 +113,9 @@ async function loadConfig() {
             showK3sPods: config.showK3sPods || showK3sPods || false,
             showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
             showK3sServices: config.showK3sServices || showK3sServices || false,
-            showK3sEvents: config.showK3sEvents || showK3sEvents || false
+            showK3sEvents: config.showK3sEvents || showK3sEvents || false,
+            showK3sNamespaces: config.showK3sNamespaces || showK3sNamespaces || false,
+            showK3sPodDetails: config.showK3sPodDetails || showK3sPodDetails || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -130,7 +134,9 @@ async function loadConfig() {
             showK3sPods: showK3sPods || false,
             showK3sDeployments: showK3sDeployments || false,
             showK3sServices: showK3sServices || false,
-            showK3sEvents: showK3sEvents || false
+            showK3sEvents: showK3sEvents || false,
+            showK3sNamespaces: showK3sNamespaces || false,
+            showK3sPodDetails: showK3sPodDetails || false
         };
     }
 }
@@ -222,6 +228,8 @@ function initializeUI() {
     const showK3sDeploymentsCheckbox = document.getElementById('showK3sDeploymentsCheckbox');
     const showK3sServicesCheckbox = document.getElementById('showK3sServicesCheckbox');
     const showK3sEventsCheckbox = document.getElementById('showK3sEventsCheckbox');
+    const showK3sNamespacesCheckbox = document.getElementById('showK3sNamespacesCheckbox');
+    const showK3sPodDetailsCheckbox = document.getElementById('showK3sPodDetailsCheckbox');
 
     // Load current settings
     showCPUCheckbox.checked = pageConfig.showCPU || false;
@@ -234,6 +242,8 @@ function initializeUI() {
     showK3sDeploymentsCheckbox.checked = pageConfig.showK3sDeployments || false;
     showK3sServicesCheckbox.checked = pageConfig.showK3sServices || false;
     showK3sEventsCheckbox.checked = pageConfig.showK3sEvents || false;
+    showK3sNamespacesCheckbox.checked = pageConfig.showK3sNamespaces || false;
+    showK3sPodDetailsCheckbox.checked = pageConfig.showK3sPodDetails || false;
 
     // Form submit handler - save on button click
     nerdForm.addEventListener('submit', async (e) => {
@@ -249,6 +259,8 @@ function initializeUI() {
         pageConfig.showK3sDeployments = showK3sDeploymentsCheckbox.checked;
         pageConfig.showK3sServices = showK3sServicesCheckbox.checked;
         pageConfig.showK3sEvents = showK3sEventsCheckbox.checked;
+        pageConfig.showK3sNamespaces = showK3sNamespacesCheckbox.checked;
+        pageConfig.showK3sPodDetails = showK3sPodDetailsCheckbox.checked;
         const success = await saveConfig(pageConfig);
 
         if (success) {

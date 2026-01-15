@@ -374,6 +374,31 @@ def fetch_k3s_stats_impl():
         'succeeded': sum(1 for p in pods.items if p.status.phase == 'Succeeded')
     }
 
+    # Get namespaces
+    namespaces = v1.list_namespace()
+    namespaces_data = [
+        {'name': ns.metadata.name, 'status': ns.status.phase}
+        for ns in namespaces.items
+    ]
+
+    # Get detailed pod list with namespace info
+    pods_detailed = []
+    for p in pods.items:
+        # Calculate ready containers
+        ready_containers = "0/0"
+        if p.status.container_statuses:
+            total = len(p.status.container_statuses)
+            ready = sum(1 for c in p.status.container_statuses if c.ready)
+            ready_containers = f"{ready}/{total}"
+
+        pods_detailed.append({
+            'name': p.metadata.name,
+            'namespace': p.metadata.namespace,
+            'status': p.status.phase,
+            'ready': ready_containers,
+            'node': p.spec.node_name or ''
+        })
+
     # Get deployments
     deployments = apps_v1.list_deployment_for_all_namespaces()
     deployments_data = {
@@ -421,7 +446,9 @@ def fetch_k3s_stats_impl():
         'pods': pods_data,
         'deployments': deployments_data,
         'services': services_data,
-        'events': recent_events
+        'events': recent_events,
+        'namespaces': namespaces_data,
+        'pods_detailed': pods_detailed
     }
 
 def run_server(port=8001):

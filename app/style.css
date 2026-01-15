@@ -903,6 +903,91 @@ body {
     padding: 20px;
 }
 
+/* Namespaces */
+.k3s-namespace-item {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.k3s-namespace-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.k3s-namespace-status {
+    font-size: 0.85rem;
+    color: var(--success);
+    text-transform: uppercase;
+}
+
+/* Pod Details */
+.k3s-namespace-group {
+    margin-bottom: 20px;
+}
+
+.k3s-namespace-header {
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--bg-hover);
+}
+
+.k3s-pod-item {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--text-secondary);
+}
+
+.k3s-pod-item.running {
+    border-left-color: var(--success);
+}
+
+.k3s-pod-item.not-running {
+    border-left-color: var(--accent);
+}
+
+.k3s-pod-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.k3s-pod-info {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.k3s-pod-status {
+    font-weight: 500;
+}
+
+.k3s-pod-item.running .k3s-pod-status {
+    color: var(--success);
+}
+
+.k3s-pod-item.not-running .k3s-pod-status {
+    color: var(--accent);
+}
+
+.k3s-pod-ready {
+    color: var(--text-secondary);
+}
+
+.k3s-pod-node {
+    color: var(--text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .k3s-node-details {

@@ -25,6 +25,8 @@ const showK3sPods = false;
 const showK3sDeployments = false;
 const showK3sServices = false;
 const showK3sEvents = false;
+const showK3sNamespaces = false;
+const showK3sPodDetails = false;
 
 // Servizi da mostrare nella homepage
 const services = [

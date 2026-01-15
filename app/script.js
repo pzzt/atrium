@@ -165,7 +165,8 @@ function updateK3sMonitorVisibility() {
     // Check if any K3s section is enabled
     const anyK3sEnabled = appConfig.showK3sNodes || appConfig.showK3sPods ||
                           appConfig.showK3sDeployments || appConfig.showK3sServices ||
-                          appConfig.showK3sEvents;
+                          appConfig.showK3sEvents || appConfig.showK3sNamespaces ||
+                          appConfig.showK3sPodDetails;
 
     // Show/hide parent k3s-monitor section
     const k3sMonitor = document.getElementById('k3sMonitor');
@@ -183,7 +184,9 @@ function updateK3sMonitorVisibility() {
         { id: 'k3sPodsSection', enabled: appConfig.showK3sPods },
         { id: 'k3sDeploymentsSection', enabled: appConfig.showK3sDeployments },
         { id: 'k3sServicesSection', enabled: appConfig.showK3sServices },
-        { id: 'k3sEventsSection', enabled: appConfig.showK3sEvents }
+        { id: 'k3sEventsSection', enabled: appConfig.showK3sEvents },
+        { id: 'k3sNamespacesSection', enabled: appConfig.showK3sNamespaces },
+        { id: 'k3sPodDetailsSection', enabled: appConfig.showK3sPodDetails }
     ];
 
     sections.forEach(section => {
@@ -222,7 +225,9 @@ async function loadConfiguration() {
             showK3sPods: config.showK3sPods || showK3sPods || false,
             showK3sDeployments: config.showK3sDeployments || showK3sDeployments || false,
             showK3sServices: config.showK3sServices || showK3sServices || false,
-            showK3sEvents: config.showK3sEvents || showK3sEvents || false
+            showK3sEvents: config.showK3sEvents || showK3sEvents || false,
+            showK3sNamespaces: config.showK3sNamespaces || showK3sNamespaces || false,
+            showK3sPodDetails: config.showK3sPodDetails || showK3sPodDetails || false
         };
     } else {
         // Fallback to defaults if API fails
@@ -241,7 +246,9 @@ async function loadConfiguration() {
             showK3sPods: showK3sPods || false,
             showK3sDeployments: showK3sDeployments || false,
             showK3sServices: showK3sServices || false,
-            showK3sEvents: showK3sEvents || false
+            showK3sEvents: showK3sEvents || false,
+            showK3sNamespaces: showK3sNamespaces || false,
+            showK3sPodDetails: showK3sPodDetails || false
         };
 
         // Show error notification to user
@@ -812,6 +819,8 @@ async function initSystemMonitor() {
         if (appConfig.showK3sDeployments) updateK3sDeployments(cachedK3sStats.deployments || {});
         if (appConfig.showK3sServices) updateK3sServices(cachedK3sStats.services || {});
         if (appConfig.showK3sEvents) updateK3sEvents(cachedK3sStats.events || []);
+        if (appConfig.showK3sNamespaces) updateK3sNamespaces(cachedK3sStats.namespaces || []);
+        if (appConfig.showK3sPodDetails) updateK3sPodDetails(cachedK3sStats.pods_detailed || []);
         hideK3sError();
     }
 
@@ -889,6 +898,8 @@ async function updateK3sStats(nocache = false) {
         if (appConfig.showK3sDeployments) updateK3sDeployments(data.deployments || {});
         if (appConfig.showK3sServices) updateK3sServices(data.services || {});
         if (appConfig.showK3sEvents) updateK3sEvents(data.events || []);
+        if (appConfig.showK3sNamespaces) updateK3sNamespaces(data.namespaces || []);
+        if (appConfig.showK3sPodDetails) updateK3sPodDetails(data.pods_detailed || []);
         hideK3sError();
 
     } catch (error) {
@@ -977,6 +988,59 @@ function updateK3sEvents(events) {
                 <span>${event.involved_object.kind}/${event.involved_object.name}</span>
                 <span>${formatTimestamp(event.timestamp)}</span>
             </div>
+        </div>
+    `).join('');
+}
+
+function updateK3sNamespaces(namespaces) {
+    const container = document.getElementById('k3sNamespaces');
+    if (!container) return;
+
+    if (namespaces.length === 0) {
+        container.innerHTML = '<div class="k3s-empty">No namespaces found</div>';
+        return;
+    }
+
+    container.innerHTML = namespaces.map(ns => `
+        <div class="k3s-namespace-item">
+            <div class="k3s-namespace-name">${ns.name}</div>
+            <div class="k3s-namespace-status">${ns.status || 'Active'}</div>
+        </div>
+    `).join('');
+}
+
+function updateK3sPodDetails(pods) {
+    const container = document.getElementById('k3sPodDetails');
+    if (!container) return;
+
+    if (pods.length === 0) {
+        container.innerHTML = '<div class="k3s-empty">No pods found</div>';
+        return;
+    }
+
+    // Group pods by namespace
+    const byNamespace = pods.reduce((acc, pod) => {
+        if (!acc[pod.namespace]) acc[pod.namespace] = [];
+        acc[pod.namespace].push(pod);
+        return acc;
+    }, {});
+
+    // Sort namespaces alphabetically
+    const sortedNamespaces = Object.keys(byNamespace).sort();
+
+    container.innerHTML = sortedNamespaces.map(ns => `
+        <div class="k3s-namespace-group">
+            <div class="k3s-namespace-header">${ns}</div>
+            ${byNamespace[ns].map(pod => `
+                <div class="k3s-pod-item ${pod.status === 'Running' ? 'running' : 'not-running'}">
+                    <div class="k3s-pod-name">${pod.name}</div>
+                    <div class="k3s-pod-info">
+                        <span class="k3s-pod-status">${pod.status}</span>
+                        <span class="k3s-pod-ready">${pod.ready}</span>
+                        ${pod.node ? `<span class="k3s-pod-node">${pod.node}</span>` : ''}
+                    </div>
+                </div>
+            `).join('')}
         </div>
     `).join('');
 }
