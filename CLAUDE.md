@@ -47,40 +47,53 @@ docker restart atrium
 
 ## Architecture
 
-This is **Atrium**, a single-page static webapp with no backend database, running in Docker with nginx + Python API.
+This is **Atrium**, a single-page static webapp with dual-mode configuration persistence, running in Docker with nginx + Python API.
 
 ### Key Architectural Decisions
 
-**Client-Side Only State**: All configuration (services, RSS feeds, app title) is stored in browser localStorage. There is no server-side persistence. The `app/config.js` file only provides defaults for new installations.
+**Dual-Mode Configuration Persistence**:
+1. **Server-side** (primary): Configuration stored in `/data/config.json` via Python API (`/api/config`)
+2. **Client-side** (fallback): Browser localStorage as backup when API unavailable
+3. **Load sequence**: `loadConfiguration()` tries API first → falls back to localStorage → uses `config.js` defaults
+4. **Save sequence**: Config page saves to API (`saveConfigToAPI()`) → on error, shows alert but keeps localStorage copy
 
 **Dual HTTP Servers**: The container runs two processes:
 - `nginx` on port 80: serves static HTML/CSS/JS
-- Python HTTP server on port 8001: provides `/api/stats` endpoint for system monitoring
+- Python HTTP server on port 8001: provides `/api/stats`, `/api/config`, `/api/k3s` endpoints
+
+**Server-Side Caching**: Python API implements 15-second TTL cache for both system stats and K3s stats to reduce `/proc` and k8s API reads. Use `?nocache=true` query parameter to bypass cache.
 
 **Multi-Language System (i18n)**:
-- All UI strings are stored in `app/i18n/*.json` (en, it, de)
-- Language detection: browser localStorage → browser `navigator.language` → fallback to 'en'
-- Translation key format: `"section.key": "value"` (flat structure, not nested)
-- Use `t('config.title')` function to translate, not direct string access
-- HTML elements with `data-i18n="key"` attribute are auto-translated on page load and language change
+- All UI strings in `app/i18n/*.json` (en, it, de) with flat structure: `"section.key": "value"`
+- Language detection: localStorage → `navigator.language` → fallback to 'en'
+- Translation function `t('key')` does direct lookup: `translations.strings['section.key']`
+- HTML with `data-i18n="key"` auto-updates on page load and language change
+- JS code must manually call `t()` and update DOM elements
 
-**Configuration Flow**:
-1. Page load → `loadConfig()` checks localStorage for `proxyHomeConfig`
-2. If not found → uses defaults from `config.js` (empty arrays for clean distribution)
-3. All config changes via UI are saved to localStorage immediately
-4. Config page provides "Export Configuration" to download JSON backup
+**Dynamic Version System**: Version auto-generated during Docker build
+- Git tag present: `v1.6.0` → footer shows "v1.6.0"
+- No tag, commit only: `f940d52` → footer shows commit hash
+- Local dev without git: footer shows "dev"
+- Build script: `git describe --tags --always` → `--build-arg VERSION=v1.6.0`
+
+**Theme System**: Catppuccin-based themes in `app/themes.js`
+- Default: `catppuccin-macchiato`
+- Themes defined as CSS variable sets (bgPrimary, textPrimary, accent, etc.)
+- Applied dynamically via JavaScript on page load
 
 ### File Structure
 
 ```
 app/
 ├── index.html          # Homepage (uses t() for i18n, data-i18n attributes)
-├── config.html         # Configuration page (tabs: General, Services, RSS Feeds)
+├── config.html         # Configuration page (tabs: General, Services, RSS Feeds, Monitoring)
 ├── style.css           # Homepage styles + theme color definitions
 ├── config-page.css     # Config page styles
-├── script.js           # Homepage logic: clock, search, services rendering, system monitor polling
+├── script.js           # Homepage logic: clock, search, services rendering, system/K3s monitor polling
 ├── config.js           # Default configuration (empty for distribution)
-├── config-page.js      # Config page logic: CRUD for services/feeds, form handling
+├── config-page.js      # Config page logic: CRUD for services/feeds, form handling, API save/load
+├── api.js              # API client: loadConfigFromAPI(), saveConfigToAPI()
+├── themes.js           # Theme system with Catppuccin color palettes
 ├── i18n.js             # Translation system: loadTranslations(), t(), setLanguage(), initI18N()
 └── i18n/
     ├── en.json         # English translations (default)
@@ -88,15 +101,27 @@ app/
     └── de.json         # German translations
 
 docker/
-├── Dockerfile          # nginx:alpine + Python3
+├── Dockerfile          # nginx:alpine + Python3 + kubernetes library
 ├── nginx.conf          # nginx config + /api/ proxy to :8001
 ├── entrypoint.sh       # Starts both nginx and Python API
 ├── docker-compose.yml  # Production deployment config
 └── api/
-    └── server.py       # Python HTTP server reading /proc for system stats
+    └── server.py       # Python HTTP server: /proc stats, /api/config, /api/k3s
+
+scripts/
+├── build.sh            # Multi-arch Docker build with auto-versioning
+└── deploy.sh           # Deployment script for Raspberry Pi
 ```
 
 ### Important Implementation Details
+
+**API Endpoints** (Python server on port 8001, proxied by nginx):
+- `GET /api/stats` - System stats (CPU, RAM, network, uptime) with 15s cache
+- `GET /api/stats?nocache=true` - Bypass cache, fresh data
+- `GET /api/config` - Load configuration from `/data/config.json`
+- `POST /api/config` - Save configuration to `/data/config.json`
+- `GET /api/k3s` - K3s cluster stats (nodes, pods, deployments, services, events, namespaces, pod details)
+- `GET /health` - Health check endpoint
 
 **i18n Translation Function**:
 ```javascript
@@ -110,36 +135,94 @@ let value = translations.strings['app.title'];  // Direct access, not nested tra
 3. Use in JS: `element.textContent = t('config.newKey')` (manual update needed)
 
 **Custom Application Title**:
-- Default title is "Atrium" (defined in i18n files)
-- Users can override via Config page → General tab
-- Stored in config as `appTitle` (empty string = use i18n default)
-- In `script.js`, call `updateAppTitle()` after i18n init and language change
-- Function checks `appConfig.appTitle` first, falls back to `t('app.title')`
+- Default title from i18n: `t('app.title')` → "Atrium"
+- Users override via Config page → General tab → stored as `appTitle` in config
+- `updateAppTitle()` checks `appConfig.appTitle` first, falls back to i18n default
+- Call `updateAppTitle()` after i18n init and language change
 
 **System Monitor Data Flow**:
-1. Python API reads `/proc/stat`, `/proc/meminfo`, `/proc/net/dev`
+1. Python API reads `/proc/stat`, `/proc/meminfo`, `/proc/net/dev` with 15s cache
 2. Serves JSON at `http://127.0.0.1:8001/api/stats`
 3. nginx proxies `/api/stats` → Python backend
-4. `script.js` polls API every 5 seconds via `setInterval()`
-5. Updates DOM elements by ID (`cpuValue`, `memValue`, etc.)
+4. `script.js` polls API every 5 seconds via `setInterval()`, updates DOM by ID
+
+**K3s Monitor Data Flow**:
+1. Python API uses kubernetes library (auto-detects in-cluster config or mounted kubeconfig)
+2. Reads cluster state: nodes, pods, deployments, services, events, namespaces
+3. Serves JSON at `http://127.0.0.1:8001/api/k3s` with 15s cache
+4. 7 independent sections: Nodes, Pods, Deployments, Services, Events, Namespaces, Pod Details
+5. Parent section auto-hides when all 7 subsections disabled
 
 **Service Color Themes**:
 - Defined in `style.css` as `.service-card.{color}::before` and `.card-icon` gradients
-- Add new colors by creating new CSS classes and adding option to config.html select
+- Add new colors by creating CSS classes and adding option to config.html select
 
-**Common Development Tasks**:
+**Client-Side Caching**:
+- System stats and K3s stats cached in browser memory (5-second polling)
+- Manual refresh buttons bypass cache with `?nocache=true` query parameter
+- Display shows cached data instantly, updates in background on polling cycle
+
+### Configuration Persistence Architecture
+
+**Server-Side Storage** (Primary):
+- Path: `/data/config.json` inside container (Docker volume)
+- API: `GET /api/config` loads, `POST /api/config` saves
+- Managed by Python HTTP server in `docker/api/server.py`
+- Persists across container restarts when volume mounted
+
+**Client-Side Storage** (Fallback):
+- Browser localStorage key: `proxyHomeConfig`
+- Used only when server API unavailable
+- Config page "Export Configuration" downloads JSON backup
+
+**Load Priority**: API response → localStorage → `config.js` defaults
+**Save Behavior**: Always tries API first, shows alert on failure
+
+### Version Management
+
+**Auto-Versioning During Build**:
+```bash
+# Build script extracts version automatically
+VERSION=$(git describe --tags --always)  # v1.6.0 or commit hash
+
+# Dockerfile accepts VERSION build arg
+docker build --build-arg VERSION=v1.6.0 -t atrium:latest .
+```
+
+**Version Display**:
+- Footer shows version from `window.APP_VERSION` (generated by Dockerfile)
+- `config.js` reads from `window.APP_VERSION` with fallback to "dev"
+- `index.html` loads `version.js` before `config.js` for availability
+
+**Create New Release**:
+```bash
+git tag -a v1.7.0 -m "Release v1.7.0"
+git push origin v1.7.0
+./scripts/build.sh  # Automatically detects and uses tag
+```
+
+### Development Workflow
 
 **Add a new configuration field**:
-1. Add default to `config.js` (e.g., `const newFeature = "";`)
-2. Add to `loadConfig()` in both `script.js` and `config-page.js`
-3. Add UI input in appropriate HTML page
-4. Add form handler to save to localStorage
-5. Add translation keys to all i18n JSON files
+1. Add default to `app/config.js` (e.g., `const newFeature = "";`)
+2. Add to `loadConfig()` in both `app/script.js` and `app/config-page.js` (merge with API response)
+3. Add UI input in appropriate HTML page (index.html or config.html)
+4. Add form handler in `config-page.js` to include field in `saveConfigToAPI()` call
+5. Add translation keys to all i18n JSON files (`en.json`, `it.json`, `de.json`)
+
+**Add a new K3s monitoring section**:
+1. Add visibility flag to `app/config.js` (e.g., `const showK3sNewSection = false;`)
+2. Add checkbox in `config.html` Monitoring tab
+3. Add handler in `config-page.js` load/save functions
+4. Add section visibility logic in `script.js` `updateK3sMonitorVisibility()`
+5. Add Python API handler in `docker/api/server.py` for k8s API calls
+6. Add update function in `script.js` to render new section data
+7. Add translation keys for all UI strings
 
 **Add a new language**:
 1. Create `app/i18n/{lang}.json` with same keys as `en.json`
-2. Add to `AVAILABLE_LANGS` array in `i18n.js`
-3. Add language name to `updateLanguageSelector()` in `i18n.js`
+2. Add to `AVAILABLE_LANGS` array in `app/i18n.js`
+3. Add language name to `updateLanguageSelector()` in `app/i18n.js`
 4. Add option to language selector in HTML pages
 
 **Debug translation issues**:
@@ -151,4 +234,5 @@ let value = translations.strings['app.title'];  // Direct access, not nested tra
 **Testing on x86_64 before ARM deployment**:
 - Docker build is multi-arch, will work on x86_64 for testing
 - System monitor API requires Linux `/proc` filesystem - won't work on macOS/Windows
-- On macOS/Windows, system stats will show "API not available"
+- On macOS/Windows, system stats show "API not available"
+- K3s monitoring works only when k8s API is accessible (in-cluster or mounted kubeconfig)
