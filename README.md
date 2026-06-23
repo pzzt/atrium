@@ -28,20 +28,20 @@
 - [Support](#-support)
 - [Links](#-links)
 
-## ✨ Features
+## Features
 
-- 🎨 **Modern Dark Theme** - Beautiful gradient UI with smooth animations
-- ⚙️ **Web UI Configuration** - Add/manage services and RSS feeds without editing files
-- 📊 **Real-time System Monitoring** - CPU, RAM, Network, Uptime stats via Python API
-- 🌍 **Multi-language Support** - English, Italian, German (UI switching)
-- 📰 **RSS Feed Integration** - Latest news from your favorite sources
-- 🔍 **Instant Search** - Quick filter through your services
-- 📱 **Responsive Design** - Works perfectly on mobile and desktop
-- 💾 **Docker Volume Persistence** - Configuration stored in `/data/config.json`
-- 🐳 **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
-- ⚡ **Lightweight** - Minimal resource usage
+- **Modern Dark Theme** - Beautiful gradient UI with smooth animations
+- **Web UI Configuration** - Add/manage services and RSS feeds without editing files
+- **Real-time System Monitoring** - CPU, RAM, Network, Uptime stats via Python API
+- **Multi-language Support** - English, Italian, German (UI switching)
+- **RSS Feed Integration** - Latest news from your favorite sources
+- **Instant Search** - Quick filter through your services
+- **Responsive Design** - Works perfectly on mobile and desktop
+- **Docker Volume Persistence** - Configuration stored in `/data/config.json`
+- **Multi-Architecture Docker** - ARM64/ARMv7/x86_64 support
+- **Lightweight** - Minimal resource usage
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Pull from Docker Hub (Recommended)
 
@@ -76,7 +76,7 @@ docker compose up -d
 
 The compose.yaml file uses port 8080 by default. You can edit the port mapping in compose.yaml if needed.
 
-## 🏗️ Architecture
+## Architecture
 
 **Atrium** is a single-page static webapp with no backend database:
 
@@ -88,7 +88,7 @@ The compose.yaml file uses port 8080 by default. You can edit the port mapping i
 - **Language**: Browser localStorage (for language preference only)
 - **Deployment**: Docker container
 
-## ⚙️ Configuration
+## Configuration
 
 All configuration is done through the web UI:
 
@@ -100,7 +100,7 @@ All configuration is done through the web UI:
 
 Configuration is stored in `/data/config.json` on the Docker volume. When you first run Atrium, it starts with an empty configuration. Use the web UI to add your services and feeds.
 
-## 📊 System Monitor
+## System Monitor
 
 Atrium includes a real-time system monitor that displays:
 
@@ -112,7 +112,7 @@ Atrium includes a real-time system monitor that displays:
 
 Data is fetched every 5 seconds from `/proc` filesystem (Linux only).
 
-## ☸️ K3s Cluster Monitoring
+## K3s Cluster Monitoring
 
 Atrium includes Kubernetes cluster monitoring with 5 independent toggleable sections:
 
@@ -130,7 +130,7 @@ Atrium includes Kubernetes cluster monitoring with 5 independent toggleable sect
 
 Each section can be enabled independently, so you can choose exactly what cluster information to show on your dashboard.
 
-### ⚠️ Important: v1.7.0+ Changes
+### Important: v1.7.0+ Changes
 
 Starting from **v1.7.0**, Atrium uses **automatic Kubernetes in-cluster configuration** instead of hardcoded IPs or manual kubeconfig mounting. This makes it work seamlessly on any Kubernetes cluster.
 
@@ -288,17 +288,17 @@ docker run -d --name atrium \
 - Some events may not have timestamps - this is expected
 - These events will display with "No timestamp" or similar
 
-## 🌍 Multi-Language Support
+## Multi-Language Support
 
 Atrium supports three languages:
 
-- 🇬🇧 **English** (default)
-- 🇮🇹 **Italiano**
-- 🇩🇪 **Deutsch**
+- **English** (default)
+- **Italiano**
+- **Deutsch**
 
 Language is automatically detected from browser settings, or manually selected via the dropdown in the top-right corner.
 
-## 🔧 Management
+## Management
 
 ### View Logs
 
@@ -328,13 +328,13 @@ docker run -d --name atrium -p 8080:80 -v atrium-data:/data --restart unless-sto
 
 Already configured in `docker/docker-compose.yml`.
 
-## 📋 Supported Architectures
+## Supported Architectures
 
 - **ARM64** (Raspberry Pi 3/4 - 64-bit OS)
 - **ARMv7** (Raspberry Pi 3 - 32-bit OS)
 - **x86_64** (Intel/AMD - for testing)
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Container Won't Start
 
@@ -367,7 +367,7 @@ docker run --rm -p 8080:80 atrium:latest
 - On macOS/Windows during development, statistics will show as unavailable
 - This is expected behavior
 
-## 💾 Backup & Restore
+## Backup & Restore
 
 Your configuration is automatically stored in a Docker volume. To back it up:
 
@@ -382,14 +382,14 @@ docker restart atrium
 
 **Export**: Use the "Export Configuration" button in Configuration page (⚙️)
 
-## 🔒 Security
+## Security
 
 - **No database** - All configuration stored in JSON file on Docker volume
 - **No external calls** - RSS feeds fetched client-side (via rss2json API for conversion)
 - **No tracking** - No analytics or telemetry
 - **No authentication** - Deploy on trusted network only (or add reverse proxy auth)
 
-## 🛣️ Roadmap
+## Roadmap
 
 - [x] Multi-language support (EN, IT, DE)
 - [x] System monitoring (CPU, RAM, Network)
@@ -402,11 +402,11 @@ docker restart atrium
 - [ ] Weather widget
 - [ ] Calendar widget
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -415,16 +415,16 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Submit a pull request
 
-## 💬 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/pzzt/atrium/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/pzzt/atrium/discussions)
 
-## 🔗 Links
+## Links
 
 - **GitHub**: [https://github.com/pzzt/atrium](https://github.com/pzzt/atrium)
 - **Docker Hub**: [https://hub.docker.com/r/pzzt/atrium](https://hub.docker.com/r/pzzt/atrium)
 
 ---
 
-**Atrium** - Your personal services entry point. 🏛️
+**Atrium** - Your personal services entry point.
